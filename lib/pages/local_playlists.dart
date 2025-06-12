@@ -133,7 +133,7 @@ class _LocalPlaylistsPageState extends State<LocalPlaylistsPage> {
                                           (route) => false, 
                                           arguments: {
                                             "id": _localPlaylists![index]['id'], 
-                                            "difficulty": 0,
+                                            "difficulty": 1,
                                             "title": _localPlaylists![index]['title'],
                                           }
                                         );
@@ -147,7 +147,7 @@ class _LocalPlaylistsPageState extends State<LocalPlaylistsPage> {
                                           (route) => false, 
                                           arguments: {
                                             "id": _localPlaylists![index]['id'], 
-                                            "difficulty": 1,
+                                            "difficulty": 2,
                                             "title": _localPlaylists![index]['title'],
                                           }
                                         );
@@ -161,7 +161,7 @@ class _LocalPlaylistsPageState extends State<LocalPlaylistsPage> {
                                           (route) => false, 
                                           arguments: {
                                             "id": _localPlaylists![index]['id'], 
-                                            "difficulty": 2,
+                                            "difficulty": 3,
                                             "title": _localPlaylists![index]['title'],
                                           }
                                         );

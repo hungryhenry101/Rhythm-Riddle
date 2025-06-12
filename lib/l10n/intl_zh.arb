@@ -51,5 +51,5 @@
     "tip": "提示: ", "correctAnswer": "正确答案: ", "correct": "正确✔", "wrong": "错误❌",
 
     "quizResult": "{playlist} 的答题结果", "details": "答题细节",
-    "pts": "分", "quizzes": "题"
+    "pts": "分", "quizzes": "题", "answer": "回答", "answerTime": "回答用时"
 }

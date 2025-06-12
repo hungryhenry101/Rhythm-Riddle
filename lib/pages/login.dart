@@ -25,7 +25,8 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin{
+class _LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
   final storage = const FlutterSecureStorage();
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
@@ -52,340 +53,468 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   final _audioPlayer = AudioPlayer();
 
   Future<bool> _checkUpdate() async {
-    try{
+    try {
       _loginText = S.current.checkingUpdate;
-      Response res = await Dio().get('http://hungryhenry.xyz/rhythm_riddle/versions.json').catchError((e){
+      Response res = await Dio()
+          .get('http://hungryhenry.xyz/rhythm_riddle/versions.json')
+          .catchError((e) {
         logger.e("version check error: $e");
-        showDialog(context: context, builder: (context){
-          return AlertDialog(
-            content: Text(S.current.unknownError),
-            actions: [
-              TextButton(onPressed: () {Navigator.pushNamed(context, '/login');}, child: Text(S.current.retry)),
-              TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(S.current.ok)),
-            ],
-          );
-        });
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Text(S.current.unknownError),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/login');
+                      },
+                      child: Text(S.current.retry)),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                      child: Text(S.current.ok)),
+                ],
+              );
+            });
       });
-      if(res.statusCode == 200){
+      if (res.statusCode == 200) {
         Map data = res.data;
         _latestVersion = data['latest']['version'];
 
         PackageInfo packageInfo = await PackageInfo.fromPlatform();
-        _currentVersion = packageInfo.version;  
+        _currentVersion = packageInfo.version;
 
-        if(isUpdateAvailable(_currentVersion!, _latestVersion!)){
-          if(!mounted) return true;
+        if (isUpdateAvailable(_currentVersion!, _latestVersion!)) {
+          if (!mounted) return true;
           setState(() {
             _changelog = data['latest']['changlog'];
             _date = data['latest']['date'];
-            if(data['latest']['force'] == true){
+            if (data['latest']['force'] == true) {
               _force = true;
             }
           });
           return true;
-        }else{
+        } else {
           return false;
         }
-      }else{
+      } else {
         logger.e("version check error: ${res.statusCode} ${res.data}");
         return false;
       }
-    }catch(e){
+    } catch (e) {
       logger.e("version check error: $e");
       return false;
     }
   }
 
   Future<void> _downloadUpdate() async {
-    if(await checkPermission(Permission.storage)){
+    if (await checkPermission(Permission.storage)) {
       final Directory tempDir = await path_provider.getTemporaryDirectory();
       String? savePath;
       String url = "";
 
-      if(Platform.isAndroid){
+      if (Platform.isAndroid) {
         savePath = "${tempDir.path}/Rhythm-Riddle_$_latestVersion.apk";
-        url = "http://hungryhenry.xyz/rhythm_riddle/rhythm_riddle_android_latest.apk";
+        url =
+            "http://hungryhenry.xyz/rhythm_riddle/rhythm_riddle_android_latest.apk";
 
-        if(await checkPermission(Permission.notification) == false){
+        if (await checkPermission(Permission.notification) == false) {
           Fluttertoast.showToast(msg: S.current.permissionExplain);
         }
         await NotificationService.init();
-      }else if(Platform.isWindows){
+      } else if (Platform.isWindows) {
         savePath = "${tempDir.path}/Rhythm-Riddle_$_latestVersion.exe";
-        url = "http://hungryhenry.xyz/rhythm_riddle/rhythm_riddle_windows_latest.exe";
-      }else{
-        if(!mounted) return;
+        url =
+            "http://hungryhenry.xyz/rhythm_riddle/rhythm_riddle_windows_latest.exe";
+      } else {
+        if (!mounted) return;
         Navigator.of(context).pop();
-        showDialog(context: context, builder: (context){
-          return AlertDialog(
-            content: Text(S.current.unknownError),
-            actions: [
-              TextButton(onPressed: () {Navigator.pushNamed(context, '/login');}, child: Text(S.current.retry)),
-              TextButton(onPressed: () {Navigator.of(context).pop();}, child: Text(S.current.ok)),
-            ],
-          );
-        });
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Text(S.current.unknownError),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/login');
+                      },
+                      child: Text(S.current.retry)),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(S.current.ok)),
+                ],
+              );
+            });
       }
 
       logger.i("savePath: $savePath");
-      if(savePath != null && url != ""){
-        try{
-          await Dio().download(
-            url,
-            savePath,
-            cancelToken: _cancelToken,
-            onReceiveProgress: (received, total){
-              _startTime ??= DateTime.now(); // 如果starttime为null，则赋值为当前时间 :))))真高级
-              Duration diff = DateTime.now().difference(_startTime!);
+      if (savePath != null && url != "") {
+        try {
+          await Dio().download(url, savePath, cancelToken: _cancelToken,
+              onReceiveProgress: (received, total) {
+            _startTime ??= DateTime.now(); // 如果starttime为null，则赋值为当前时间 :))))真高级
+            Duration diff = DateTime.now().difference(_startTime!);
 
-              if(mounted){
-                setState(() {
-                  _progress = ((received / total) * 100).toInt();
-                  if(received > 0 && total > 0 && diff.inSeconds > 0){
-                    _speed = (received / 1024 / 1024) / diff.inSeconds; // mb/s
-                  }
-                });
-              }else{
+            if (mounted) {
+              setState(() {
                 _progress = ((received / total) * 100).toInt();
-                if(received > 0 && total > 0 && diff.inSeconds > 0){
-                  _speed = (received / 1024 / 1024) / diff.inSeconds;
+                if (received > 0 && total > 0 && diff.inSeconds > 0) {
+                  _speed = (received / 1024 / 1024) / diff.inSeconds; // mb/s
                 }
+              });
+            } else {
+              _progress = ((received / total) * 100).toInt();
+              if (received > 0 && total > 0 && diff.inSeconds > 0) {
+                _speed = (received / 1024 / 1024) / diff.inSeconds;
               }
-
-              NotificationService.showProgressNotification(
-                id: 1, 
-                title: S.current.dlUpdate, 
-                body: "${S.current.downloading(_latestVersion!)} | ${_speed.toStringAsFixed(1)}mb/s", 
-                progress: _progress
-              );
             }
-          );
-          if(Platform.isAndroid){
-            if(await checkPermission(Permission.requestInstallPackages) == false){
+
+            NotificationService.showProgressNotification(
+                id: 1,
+                title: S.current.dlUpdate,
+                body:
+                    "${S.current.downloading(_latestVersion!)} | ${_speed.toStringAsFixed(1)}mb/s",
+                progress: _progress);
+          });
+          if (Platform.isAndroid) {
+            if (await checkPermission(Permission.requestInstallPackages) ==
+                false) {
               logger.e("request install packages permission error");
-              if(mounted){
+              if (mounted) {
                 setState(() {
                   _loginText = S.current.restart;
                 });
-                showDialog(context: context, builder: (context){
-                  return AlertDialog(
-                    content: Text(S.current.permissionError(S.current.installPerm)),
-                    actions: [
-                      TextButton(
-                        onPressed: () async{
-                          if(await checkPermission(Permission.requestInstallPackages) == false){
-                            Fluttertoast.showToast(msg: S.current.permissionError(S.current.installPerm));
-                            Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-                          }
-                        },
-                        child: Text(S.current.retry)
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          _launchInBrowser(Uri(scheme: "http", host: "hungryhenry.xyz", path: "/rhythm_riddle/"));
-                        },
-                        child: Text(S.current.installManually)
-                      )
-                    ],
-                  );
-                });
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        content: Text(
+                            S.current.permissionError(S.current.installPerm)),
+                        actions: [
+                          TextButton(
+                              onPressed: () async {
+                                if (await checkPermission(
+                                        Permission.requestInstallPackages) ==
+                                    false) {
+                                  Fluttertoast.showToast(
+                                      msg: S.current.permissionError(
+                                          S.current.installPerm));
+                                  Navigator.of(context).pushNamedAndRemoveUntil(
+                                      '/login', (route) => false);
+                                }
+                              },
+                              child: Text(S.current.retry)),
+                          TextButton(
+                              onPressed: () {
+                                _launchInBrowser(Uri(
+                                    scheme: "http",
+                                    host: "hungryhenry.xyz",
+                                    path: "/rhythm_riddle/"));
+                              },
+                              child: Text(S.current.installManually))
+                        ],
+                      );
+                    });
               }
-            }else{
+            } else {
               //安装apk
-              int? installCode = await AndroidPackageInstaller.installApk(apkFilePath: savePath);
-              if(installCode != 0){
+              int? installCode = await AndroidPackageInstaller.installApk(
+                  apkFilePath: savePath);
+              if (installCode != 0) {
                 logger.e("install apk error");
-                if(mounted){
-                  showDialog(context: context, builder: (context){
-                    return AlertDialog(
-                      content: Text(S.current.unknownError),
-                      actions: [
-                        TextButton(onPressed: () {Navigator.pushNamed(context, '/login');}, child: Text(S.current.retry)),
-                        TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(S.current.ok)),
-                      ],
-                    );
-                  });
+                if (mounted) {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          content: Text(S.current.unknownError),
+                          actions: [
+                            TextButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(context, '/login');
+                                },
+                                child: Text(S.current.retry)),
+                            TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(false);
+                                },
+                                child: Text(S.current.ok)),
+                          ],
+                        );
+                      });
                 }
               }
             }
-          }else{
+          } else {
             //win
-            Process process = await Process.start(savePath, [], mode: ProcessStartMode.detached);
+            Process process = await Process.start(savePath, [],
+                mode: ProcessStartMode.detached);
             logger.i("start process: $process");
             exit(0);
           }
-        }catch(e){
-          if(e is! DioException){
+        } catch (e) {
+          if (e is! DioException) {
             logger.e("download error: $e");
             NotificationService.cancelAll();
-            if(mounted){
-              await showDialog(context: context, builder: (context){
-                return AlertDialog(
-                  content: Text(S.current.unknownError),
-                  actions: [
-                    TextButton(onPressed: () {Navigator.pushNamed(context, '/login');}, child: Text(S.current.retry)),
-                    TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(S.current.ok)),
-                  ],
-                );
-              });
+            if (mounted) {
+              await showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      content: Text(S.current.unknownError),
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/login');
+                            },
+                            child: Text(S.current.retry)),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(false);
+                            },
+                            child: Text(S.current.ok)),
+                      ],
+                    );
+                  });
             }
-          }else{
+          } else {
             logger.e("download error: ${e.message}");
             NotificationService.cancelAll();
-            if(mounted){
-              await showDialog(context: context, builder: (context){
-                return AlertDialog(
-                  content: Text(S.current.unknownError),
-                  actions: [
-                    TextButton(onPressed: () {Navigator.pushNamed(context, '/login');}, child: Text(S.current.retry)),
-                    TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(S.current.ok)),
-                  ],
-                );
-              });
+            if (mounted) {
+              await showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      content: Text(S.current.unknownError),
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/login');
+                            },
+                            child: Text(S.current.retry)),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(false);
+                            },
+                            child: Text(S.current.ok)),
+                      ],
+                    );
+                  });
             }
           }
         }
         NotificationService.cancelNotification(1);
-      }else{
+      } else {
         logger.e('savePath or url is null');
-        if(mounted){
-          await showDialog(context: context, builder: (context){
-            return AlertDialog(
-              content: Text(S.current.unknownError),
-              actions: [
-                TextButton(onPressed: () {Navigator.pushNamed(context, '/login');}, child: Text(S.current.retry)),
-                TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(S.current.ok)),
-              ],
-            );
-          });
+        if (mounted) {
+          await showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  content: Text(S.current.unknownError),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/login');
+                        },
+                        child: Text(S.current.retry)),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        },
+                        child: Text(S.current.ok)),
+                  ],
+                );
+              });
         }
       }
-    }else{
-      if(mounted){
+    } else {
+      if (mounted) {
         setState(() {
           _loginText = S.current.restart;
         });
-        showDialog(context: context, builder: (context){
-          return AlertDialog(
-            content: Text(S.current.permissionError(S.current.storagePerm)),
-            actions: [
-              TextButton(
-                onPressed: () async{
-                  Navigator.of(context).pushNamed('/login');
-                },
-                child: Text(S.current.retry)
-              ),
-              TextButton(
-                onPressed: (){
-                  Navigator.of(context).pop(false);
-                  openAppSettings();
-                },
-                child: Text(S.current.ok)
-              )
-            ],
-          );
-        });
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Text(S.current.permissionError(S.current.storagePerm)),
+                actions: [
+                  TextButton(
+                      onPressed: () async {
+                        Navigator.of(context).pushNamed('/login');
+                      },
+                      child: Text(S.current.retry)),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                        openAppSettings();
+                      },
+                      child: Text(S.current.ok))
+                ],
+              );
+            });
       }
     }
   }
 
-  Future<void> login(String username, String password, BuildContext context) async {
-    if(mounted){
+  Future<void> _playAndNavigate() async {
+    try {
+      setState(() {
+        _showHeadphoneWidget = true;
+        _headphoneSceneController.forward();
+      });
+      await _audioPlayer.setAsset('assets/sounds/loginToHome.mp3');
+      await _audioPlayer.play();
+      if (mounted) {
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('/home', (route) => false);
+      }
+    } catch (e, stack) {
+      // 播放失败或其他异常处理
+      debugPrint("播放或跳转出错：$e\n$stack");
+
+      // 安全兜底跳转
+      if (mounted) {
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('/home', (route) => false);
+      }
+    }
+  }
+
+  Future<void> login(
+      String username, String password, BuildContext context) async {
+    if (mounted) {
       setState(() {
         _loginText = S.current.loggingIn;
       });
     }
-    try{
-      final response = await http.post(
-        Uri.parse('http://hungryhenry.xyz/api/login.php'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'username': username,
-          'password': password,
-        })
-      ).timeout(const Duration(seconds:7));
+    try {
+      final response = await http
+          .post(Uri.parse('http://hungryhenry.xyz/api/login.php'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+              body: jsonEncode(<String, String>{
+                'username': username,
+                'password': password,
+              }))
+          .timeout(const Duration(seconds: 7));
 
-      if(!mounted) return;
+      if (!mounted) return;
 
       if (response.statusCode == 200) {
         // LET'S GOOOOOO
-        await storage.write(key: 'uid', value: jsonDecode(response.body)['data']['uid'].toString());
-        await storage.write(key: 'password', value: jsonDecode(response.body)['data']['password']);
-        await storage.write(key: 'username', value: jsonDecode(response.body)['data']['username']);
-        await storage.write(key: 'mail', value: jsonDecode(response.body)['data']['mail']);
+        await storage.write(
+            key: 'uid',
+            value: jsonDecode(response.body)['data']['uid'].toString());
+        await storage.write(
+            key: 'password',
+            value: jsonDecode(response.body)['data']['password']);
+        await storage.write(
+            key: 'username',
+            value: jsonDecode(response.body)['data']['username']);
+        await storage.write(
+            key: 'mail', value: jsonDecode(response.body)['data']['mail']);
 
         DateTime now = DateTime.now();
         String formattedDate = DateFormat('yyyy-MM-dd').format(now);
         await storage.write(key: 'date', value: formattedDate);
-
-        _audioPlayer.play();
-        setState(() {
-          _showHeadphoneWidget = true;
-        });
-        _headphoneSceneController.forward();
-
-        Future.delayed(const Duration(seconds: 2, milliseconds: 450), (){
-            Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-        });
+        _playAndNavigate();
       } else if (response.statusCode == 401) {
         // 验证错误
-        if(mounted){
+        if (mounted) {
           setState(() {
-            _errorMessage = S.current.emailOrName + S.current.or + S.current.password + S.current.incorrect;
+            _errorMessage = S.current.emailOrName +
+                S.current.or +
+                S.current.password +
+                S.current.incorrect;
             _loginText = S.current.login;
           });
         }
       } else {
         // 未知错误
-        if(mounted){
-          setState((){
+        if (mounted) {
+          setState(() {
             _loginText = S.current.login;
           });
-          await showDialog(context: context, builder: (context){
-            return AlertDialog(
-              content: Text(S.current.unknownError),
-              actions: [
-                TextButton(onPressed: () {Navigator.pushNamed(context, '/login');}, child: Text(S.current.retry)),
-                TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(S.current.ok)),
-              ],
-            );
-          });
+          await showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  content: Text(S.current.unknownError),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/login');
+                        },
+                        child: Text(S.current.retry)),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        },
+                        child: Text(S.current.ok)),
+                  ],
+                );
+              });
         }
       }
-    }catch (e){
+    } catch (e) {
       logger.e("login error $e");
-      if(mounted){
+      if (mounted) {
         setState(() {
           _loginText = S.current.login;
         });
-        if(e is TimeoutException){
-          if(!mounted){
+        if (e is TimeoutException) {
+          if (!mounted) {
             logger.e("login timeout");
-          }else{
-            await showDialog(context: context, builder: (context){
-              return AlertDialog(
-                content: Text(S.current.connectError),
-                actions: [
-                  TextButton(onPressed: () {Navigator.pushNamed(context, '/login');}, child: Text(S.current.retry)),
-                  TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(S.current.ok)),
-                ],
-              );
-            });
+          } else {
+            await showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    content: Text(S.current.connectError),
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/login');
+                          },
+                          child: Text(S.current.retry)),
+                      TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(false);
+                          },
+                          child: Text(S.current.ok)),
+                    ],
+                  );
+                });
           }
-        }else{
-          if(mounted){
-            await showDialog(context: context, builder: (context){
-              return AlertDialog(
-                content: Text(S.current.unknownError),
-                actions: [
-                  TextButton(onPressed: () {Navigator.pushNamed(context, '/login');}, child: Text(S.current.retry)),
-                  TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(S.current.ok)),
-                ],
-              );
-            });
-          }else{
+        } else {
+          if (mounted) {
+            await showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    content: Text(S.current.unknownError),
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/login');
+                          },
+                          child: Text(S.current.retry)),
+                      TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(false);
+                          },
+                          child: Text(S.current.ok)),
+                    ],
+                  );
+                });
+          } else {
             logger.e("login error: $e");
           }
         }
@@ -394,20 +523,31 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   Future<void> _launchInBrowser(Uri url) async {
-      if (!await launchUrl(
-        url,
-        mode: LaunchMode.externalApplication,
-      ) && mounted) {
-        showDialog(context: context, builder: (context){
-          return AlertDialog(
-            content: Text(S.current.unknownError),
-            actions: [
-              TextButton(onPressed: () {Navigator.pushNamed(context, '/login');}, child: Text(S.current.retry)),
-              TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(S.current.ok)),
-            ],
-          );
-        });
-      }
+    if (!await launchUrl(
+          url,
+          mode: LaunchMode.externalApplication,
+        ) &&
+        mounted) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Text(S.current.unknownError),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/login');
+                    },
+                    child: Text(S.current.retry)),
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(false);
+                    },
+                    child: Text(S.current.ok)),
+              ],
+            );
+          });
+    }
   }
 
   void _login() {
@@ -421,50 +561,55 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     }
   }
 
-
   Future<void> loginUsingStorage() async {
     String? username = await storage.read(key: 'username');
     String? password = await storage.read(key: 'password');
     String? date = await storage.read(key: 'date');
     DateTime now = DateTime.now();
-    if(date != null && mounted){
+    if (date != null && mounted) {
       //如果storage中的日期在现在的7天前
-      if(now.difference(DateTime.parse(date)).inDays < 7){
+      if (now.difference(DateTime.parse(date)).inDays < 7) {
         if (username != null && password != null) {
           login(username, password, context);
         }
-      }else{
-        await showDialog(context: context, builder: (context){
-          return AlertDialog(
-              content: Text(S.current.loginExpired),
-              actions: [
-                TextButton(onPressed: () async {
-                  _emailController.text = username!;
-                  await storage.delete(key: 'username');
-                  await storage.delete(key: 'password');
-                  await storage.delete(key: 'date');
-                  Navigator.of(context).pop(false);
-                }, child: Text(S.current.relogin)),
-                TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(S.current.cancel)),
-              ],
-          );
-        });
+      } else {
+        await showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Text(S.current.loginExpired),
+                actions: [
+                  TextButton(
+                      onPressed: () async {
+                        _emailController.text = username!;
+                        await storage.delete(key: 'username');
+                        await storage.delete(key: 'password');
+                        await storage.delete(key: 'date');
+                        Navigator.of(context).pop(false);
+                      },
+                      child: Text(S.current.relogin)),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                      child: Text(S.current.cancel)),
+                ],
+              );
+            });
       }
     }
   }
 
   Widget _buildLoginPage() {
     return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxWidth: 500
-      ),
-      child:Form(
+      constraints: const BoxConstraints(maxWidth: 500),
+      child: Form(
         child: ListView(
           shrinkWrap: true,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 25, bottom:20),
+              padding: const EdgeInsets.only(left: 25, bottom: 20),
               child: Text(
                 _loginText,
                 style: const TextStyle(fontSize: 42),
@@ -481,14 +626,15 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       controller: _emailController,
                       decoration: InputDecoration(
                         labelText: S.current.emailOrName,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
                       ),
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return S.current.emptyemail;
                         }
-                        if(_errorMessage != ''){
+                        if (_errorMessage != '') {
                           return '';
                         }
                         return null;
@@ -501,52 +647,58 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       controller: _passwordController,
                       decoration: InputDecoration(
                         labelText: S.current.password,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
                       ),
                       obscureText: true,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return S.current.emptypassword;
                         }
-                        if(_errorMessage != ''){
+                        if (_errorMessage != '') {
                           return _errorMessage;
                         }
                         return null;
                       },
                     ),
-                    const SizedBox(height:10),
+                    const SizedBox(height: 10),
 
                     //register
                     TextButton(
-                      onPressed: () => setState(() {
-                        _launchInBrowser(Uri(scheme: 'http', host: 'hungryhenry.xyz', path: 'blog/admin'));
-                      }),
-                      style:ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all<Color>(const Color.fromARGB(0, 0, 0, 0)),
-                      ),
-                      child: Text(
-                        S.current.register,
-                        style: const TextStyle(fontSize: 14),
-                      )
-                    ),
+                        onPressed: () => setState(() {
+                              _launchInBrowser(Uri(
+                                  scheme: 'http',
+                                  host: 'hungryhenry.xyz',
+                                  path: 'blog/admin'));
+                            }),
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all<Color>(
+                              const Color.fromARGB(0, 0, 0, 0)),
+                        ),
+                        child: Text(
+                          S.current.register,
+                          style: const TextStyle(fontSize: 14),
+                        )),
 
                     // 登录按钮
                     SizedBox(
-                      width:150,
-                      child: ElevatedButton(
-                        onPressed: (){
-                          if(_loginText != S.current.loggingIn){
-                            FocusScopeNode currentFocus = FocusScope.of(context);
-                            /// 键盘是否回收
-                            if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
-                              FocusManager.instance.primaryFocus!.unfocus();
+                        width: 150,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (_loginText != S.current.loggingIn) {
+                              FocusScopeNode currentFocus =
+                                  FocusScope.of(context);
+
+                              /// 键盘是否回收
+                              if (!currentFocus.hasPrimaryFocus &&
+                                  currentFocus.focusedChild != null) {
+                                FocusManager.instance.primaryFocus!.unfocus();
+                              }
+                              _login();
                             }
-                            _login();
-                          }
-                        },
-                        child: Text(S.current.login),
-                      )
-                    ),
+                          },
+                          child: Text(S.current.login),
+                        )),
 
                     Text(
                       S.current.or,
@@ -555,35 +707,22 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
                     // 免登录进入
                     SizedBox(
-                      child: ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.all<Color>(const Color.fromARGB(166, 151, 151, 151)),
+                        child: ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all<Color>(
+                            const Color.fromARGB(166, 151, 151, 151)),
+                      ),
+                      onPressed: () async {
+                        _playAndNavigate();
+                      },
+                      child: Text(
+                        S.current.guest,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
                         ),
-                        onPressed: () async {
-                          FocusScopeNode currentFocus = FocusScope.of(context);
-                          if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
-                            FocusManager.instance.primaryFocus!.unfocus();
-                          }
-                          
-                          setState(() {
-                            _showHeadphoneWidget = true;
-                          });
-                          _headphoneSceneController.forward();
-
-                          _audioPlayer.play();
-                          Future.delayed(const Duration(seconds: 2, milliseconds: 400), (){
-                              Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-                          });
-                        },
-                        child: Text(
-                          S.current.guest,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
-                      )
-                    )
+                      ),
+                    ))
                   ],
                 ),
               ),
@@ -597,154 +736,154 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   Widget _buildDownloadPage() {
     return ConstrainedBox(
       constraints: BoxConstraints(
-        maxWidth: min(500, MediaQuery.of(context).size.width - 20)
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            S.current.downloading(_latestVersion!),
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+          maxWidth: min(500, MediaQuery.of(context).size.width - 20)),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Text(
+          S.current.downloading(_latestVersion!),
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 20),
+        LinearProgressIndicator(
+          value: _progress / 100,
+          backgroundColor: Colors.grey[300],
+        ),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            Text(
+              "$_progress%",
             ),
-          ),
-          const SizedBox(height: 20),
-          LinearProgressIndicator(
-            value: _progress / 100,
-            backgroundColor: Colors.grey[300],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Text(
-                "$_progress%",
-              ),
-              const Spacer(),
-              Text(
-                "${_speed.toStringAsFixed(1)}mb/s",
-              )
-            ],
-          ),
-          const SizedBox(height: 20),
-          TextButton(
-            child: Text(_startTime == null ? "${S.current.cancel}ing..." : S.current.cancel),
-            onPressed: (){
-              if(_startTime != null){
-                setState(() {
-                  _startTime = null;
-                  _progress = 0;
-                  _speed = 0.0;
-                  _loginText = S.current.login;
-                });
+            const Spacer(),
+            Text(
+              "${_speed.toStringAsFixed(1)}mb/s",
+            )
+          ],
+        ),
+        const SizedBox(height: 20),
+        TextButton(
+          child: Text(_startTime == null
+              ? "${S.current.cancel}ing..."
+              : S.current.cancel),
+          onPressed: () {
+            if (_startTime != null) {
+              setState(() {
+                _startTime = null;
+                _progress = 0;
+                _speed = 0.0;
+                _loginText = S.current.login;
+              });
               _cancelToken.cancel();
-              }
-            },
-          )
-        ]
-      ),
+            }
+          },
+        )
+      ]),
     );
   }
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    _audioPlayer.setAsset('assets/sounds/loginToHome.mp3');
     _checkUpdate().then((needUpdate) {
-      if(needUpdate && mounted){
+      if (needUpdate && mounted) {
         showDialog(
-          context: context,
-          barrierDismissible: false, // 禁止点击对话框外部关闭
-          builder: (BuildContext context) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16.0), // 圆角样式
-              ),
-              title: Text(
-                S.current.update(_currentVersion!, _latestVersion!),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+            context: context,
+            barrierDismissible: false, // 禁止点击对话框外部关闭
+            builder: (BuildContext context) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16.0), // 圆角样式
                 ),
-              ),
-              content: ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 300),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        (_changelog ?? "") + "\n" + S.current.releaseDate(_date!),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ],
+                title: Text(
+                  S.current.update(_currentVersion!, _latestVersion!),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
                   ),
                 ),
-              ),
-              actions: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    if(!_force)...[
+                content: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 300),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          (_changelog ?? "") +
+                              "\n" +
+                              S.current.releaseDate(_date!),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                actions: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      if (!_force) ...[
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // 关闭对话框
+                            loginUsingStorage();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey[400],
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                          child: Text(
+                            S.current.cancel,
+                            style: const TextStyle(
+                              color: Colors.black87,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        )
+                      ],
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).pop(); // 关闭对话框
-                          loginUsingStorage();
+                          setState(() {
+                            _loginText = S.current.downloading(_latestVersion!);
+                          });
+                          // 执行更新逻辑
+                          Navigator.of(context).pop();
+                          _downloadUpdate();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[400],
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          backgroundColor: Colors.blue, // 突出显示立即更新按钮
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                         ),
                         child: Text(
-                          S.current.cancel,
+                          S.current.dlUpdate,
                           style: const TextStyle(
-                            color: Colors.black87,
+                            color: Colors.white,
                             fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      )
+                      ),
                     ],
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _loginText = S.current.downloading(_latestVersion!);
-                        });
-                        // 执行更新逻辑
-                        Navigator.of(context).pop();
-                        _downloadUpdate();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue, // 突出显示立即更新按钮
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
-                      child: Text(
-                        S.current.dlUpdate,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          }
-        );
-      }else{
+                  ),
+                ],
+              );
+            });
+      } else {
         setState(() {
           _loginText = S.current.login;
         });
@@ -752,14 +891,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       }
     });
 
-     _headphoneSceneController = AnimationController(
+    _headphoneSceneController = AnimationController(
       duration: const Duration(seconds: 2), // 动画持续时间
       vsync: this,
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: Offset(0, 1),  // 从屏幕底部进入
-      end: Offset(0, 0),    // 最终到达原位置
+      begin: Offset(0, 1), // 从屏幕底部进入
+      end: Offset(0, 0), // 最终到达原位置
     ).animate(CurvedAnimation(
       parent: _headphoneSceneController,
       curve: Curves.easeOut, // 缓和效果
@@ -768,8 +907,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   @override
   void dispose() {
-    _headphoneSceneController.dispose();
     _audioPlayer.dispose();
+    _headphoneSceneController.dispose();
     super.dispose();
   }
 
@@ -782,7 +921,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           Center(
             child: Padding(
               padding: const EdgeInsets.all(12.0),
-              child: _startTime == null ? _buildLoginPage() : _buildDownloadPage(),
+              child:
+                  _startTime == null ? _buildLoginPage() : _buildDownloadPage(),
             ),
           ),
 
@@ -796,11 +936,15 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.headphones, color: Colors.white, size: 50),
+                      const Icon(Icons.headphones,
+                          color: Colors.white, size: 50),
                       const SizedBox(height: 10),
                       Text(
                         S.current.wearHeadphone,
-                        style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),

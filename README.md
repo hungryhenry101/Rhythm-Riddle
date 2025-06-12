@@ -2,15 +2,9 @@
 
 <div align="center">
 
-![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
-![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white)
-![License](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)
-
 一款有趣的猜歌游戏，让音乐爱好者通过聆听音频片段来测试他们的音乐知识！
 
-[English](#english) | [中文](#概述)
+[English](README_EN.md) | [中文](#概述)
 
 </div>
 
@@ -56,12 +50,12 @@
 
 <div align="center">
 
-![Week 1](img_for_readme/24.9.16-24.9.22.png)
-![Week 2](img_for_readme/24.9.23-24.9.29.png)
-![Week 3](img_for_readme/24.9.30-24.10.6.png)
-![Week 4](img_for_readme/24.10.07-24.10.13.png)
-![Week 5](img_for_readme/24.10.14-24.10.20.png)
-![Week 6](img_for_readme/24.11.25-24.12.1.png)
+![24.9.16-24.9.22](img_for_readme/24.9.16-24.9.22.png)
+![24.9.23-24.9.29](img_for_readme/24.9.23-24.9.29.png)
+![24.9.30-24.10.6](img_for_readme/24.9.30-24.10.6.png)
+![24.10.07-24.10.13](img_for_readme/24.10.07-24.10.13.png)
+![24.10.14-24.10.20](img_for_readme/24.10.14-24.10.20.png)
+![24.11.25-24.12.1](img_for_readme/24.11.25-24.12.1.png)
 
 </div>
 

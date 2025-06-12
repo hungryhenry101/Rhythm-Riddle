@@ -11,7 +11,8 @@ class _TestState extends State<Test> {
   final player = AudioPlayer();
 
   Future<void> playAudio() async {
-    await player.setAudioSource(AudioSource.uri(Uri.parse("https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3")));
+    await player.setAudioSource(AudioSource.uri(Uri.parse(
+        "https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3")));
     player.play();
     print("Audio Played");
   }
@@ -20,20 +21,18 @@ class _TestState extends State<Test> {
   void initState() {
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("test"),
-      ),
-      body: Center(
-        child: TextButton(
-          onPressed: (){
-            playAudio();
-          },
-          child: Text("Play Audio")
-        )
-      )
-    );
+        appBar: AppBar(
+          title: Text("test"),
+        ),
+        body: Center(
+            child: TextButton(
+                onPressed: () {
+                  playAudio();
+                },
+                child: Text("Play Audio"))));
   }
 }

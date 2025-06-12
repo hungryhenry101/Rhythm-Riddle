@@ -52,5 +52,5 @@
     "tip": "Tips: ", "correctAnswer": "Correct Answer: ", "correct": "Correct✔", "wrong": "Wrong❌",
 
     "quizResult": "Result of {playlist}", "details": "Answer Details",
-    "pts": "points", "quizzes": "quizzes"
+    "pts": "points", "quizzes": "quizzes","answer": "Answer","answerTime": "Answer Time"
 }

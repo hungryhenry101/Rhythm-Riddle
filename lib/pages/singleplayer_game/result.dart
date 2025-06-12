@@ -20,7 +20,7 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
   String? _password;
 
   //传入参数
-  Map _resultMap = {};
+  List _resultList = [];
   int? _playlistId;
   String? _playlistTitle;
   int? _difficulty;
@@ -215,8 +215,8 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
   }
 
   void _computeCorrectCount() {
-    for (var entry in _resultMap.entries) {
-      final item = entry.value;
+    int key = 0;
+    for (var item in _resultList) {
       final submitText = item['submitText']?.toString().toLowerCase() ?? '';
       final answer = item['answer']?.toString().toLowerCase();
       final answerList = (item['answerList'] as List<dynamic>?)?.map((e) => e.toString().toLowerCase()).toList() ?? [];
@@ -238,10 +238,11 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
 
       if (isCorrect){
         _correctCount = _correctCount + 1;
-        _resultMap[entry.key]['correct'] = true;
+        _resultList[key]['correct'] = true;
       }else{
-        _resultMap[entry.key]['correct'] = false;
+        _resultList[key]['correct'] = false;
       }
+      key++;
     }
   }
 
@@ -259,13 +260,15 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
           final args = ModalRoute.of(context)?.settings.arguments as Map?;
           if (args != null) {
             setState(() {
-              _resultMap = args['resultMap'];
+              _resultList = args['resultList'];
               _playlistId = args['playlistId'];
               _playlistTitle = args['playlistTitle'];
               _difficulty = args['difficulty'];
             });
-            _resultMap.forEach((key, value) => _answerTime += (value["answerTime"] ?? 0) as int);
-            _quizCount = _resultMap.length;
+            for(var item in _resultList) {
+              _answerTime += (item["answerTime"] ?? "0") as int;
+            }
+            _quizCount = _resultList.length;
             _computeCorrectCount();
             _score = (_correctCount / _quizCount! * 10).round();
 
@@ -413,7 +416,7 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
                 runSpacing: 16.0, // Vertical spacing between rows
                 alignment: WrapAlignment.center,
                 children:[
-                  for (var item in _resultMap.entries)
+                  for (var item in _resultList)
                     SizedBox(
                       width:340,
                       height: 360,
@@ -427,7 +430,7 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
                           child: ListView(
                             children: [
                               if(_audioPlayer.playing && _source ==
-                              "http://music.hungryhenry.xyz/${item.value['musicId']}.mp3")...
+                              "http://hungryhenry.xyz/musiclab/music/${item['musicId']}.mp3")...
                               [
                                 //进度条
                                 SliderTheme(
@@ -474,14 +477,14 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
                                 children: [
                                   Expanded(
                                     child: Text( //题目
-                                      "${int.parse(item.key) + 1}. ${item.value['quizType'] == 0 ? S.current.chooseMusic
-                                          : item.value['quizType'] == 1 ? S.current.chooseArtist
-                                          : item.value['quizType'] == 2 ? S.current.chooseAlbum
-                                          : item.value['quizType'] == 3 ? S.current.chooseGenre
-                                          : item.value['quizType'] == 4 ? S.current.enterMusic
-                                          : item.value['quizType'] == 5 ? S.current.enterArtist
-                                          : item.value['quizType'] == 6 ? S.current.enterAlbum
-                                          : item.value['quizType'] == 7 ? S.current.enterGenre
+                                      "${int.parse(item.key) + 1}. ${item['quizType'] == 0 ? S.current.chooseMusic
+                                          : item['quizType'] == 1 ? S.current.chooseArtist
+                                          : item['quizType'] == 2 ? S.current.chooseAlbum
+                                          : item['quizType'] == 3 ? S.current.chooseGenre
+                                          : item['quizType'] == 4 ? S.current.enterMusic
+                                          : item['quizType'] == 5 ? S.current.enterArtist
+                                          : item['quizType'] == 6 ? S.current.enterAlbum
+                                          : item['quizType'] == 7 ? S.current.enterGenre
                                           : "WTF??HOW??"}",
                                       style: const TextStyle(
                                         fontSize: 18,
@@ -492,35 +495,35 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
                           
                                   //播放按钮
                                   _loading && _source == 
-                                  "http://music.hungryhenry.xyz/${item.value['musicId']}.mp3" ? 
+                                  "http://hungryhenry.xyz/musiclab/music/${item['musicId']}.mp3" ? 
                                   const CircularProgressIndicator() :
                                   IconButton(
                                     icon: _source == null || !_audioPlayer.playing ? (
                                       const Icon(Icons.play_arrow)
                                     ):(
                                       _source == 
-                                      "http://music.hungryhenry.xyz/${item.value['musicId']}.mp3") ? 
+                                      "http://hungryhenry.xyz/musiclab/music/${item['musicId']}.mp3") ? 
                                         const Icon(Icons.pause) : const Icon(Icons.play_arrow),
                                     onPressed: () async{
                                       try{
                                         if(!_audioPlayer.playing){
                                           if(_source == null || 
                                             _source != 
-                                              "http://music.hungryhenry.xyz/${item.value['musicId']}.mp3")
+                                              "http://hungryhenry.xyz/musiclab/music/${item['musicId']}.mp3")
                                           {
                                             await _audioPlayer.stop();
-                                            await _audioPlayer.setUrl("http://music.hungryhenry.xyz/${item.value['musicId']}.mp3");
+                                            await _audioPlayer.setUrl("http://hungryhenry.xyz/musiclab/music/${item['musicId']}.mp3");
                                             _audioPlayer.play();
                                           }else{
                                             _audioPlayer.play();
                                           }
                                         }else{
                                           if(_source == 
-                                          "http://music.hungryhenry.xyz/${item.value['musicId']}.mp3")
+                                          "http://hungryhenry.xyz/musiclab/music/${item['musicId']}.mp3")
                                           {
                                             await _audioPlayer.pause();
                                           } else{
-                                            await _audioPlayer.setUrl("http://music.hungryhenry.xyz/${item.value['musicId']}.mp3");
+                                            await _audioPlayer.setUrl("http://hungryhenry.xyz/musiclab/music/${item['musicId']}.mp3");
                                             _audioPlayer.play();
                                           }
                                         }
@@ -557,21 +560,21 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
                                 ],
                               ),
                               const SizedBox(height: 8),
-                              if(item.value['options'] != null)...[
-                                for (var option in item.value['options'])...[
+                              if(item['options'] != null)...[
+                                for (var option in item['options'])...[
                                   Container(
                                     margin: const EdgeInsets.symmetric(vertical: 4.0),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8.0),
                                       border: Border.all(
-                                        color: (option) == item.value['answer']
+                                        color: (option) == item['answer']
                                             ? Colors.green : Colors.red,
                                         width: 1.5,
                                       ),
                                     ),
                                     child: ListTile(
-                                      leading: (option) == item.value['submitText']
-                                          ? option == item.value["answer"] 
+                                      leading: (option) == item['submitText']
+                                          ? option == item["answer"] 
                                           ? const Icon(Icons.check, color: Colors.green)
                                           : const Icon(Icons.close, color: Colors.red) : null,
                                       title: Text((option)),
@@ -579,20 +582,20 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
                                   )
                                 ],
                                 const SizedBox(height: 5),
-                                Text("用时：${item.value['answerTime']}s", textAlign: TextAlign.center)
+                                Text("用时：${item['answerTime']}s", textAlign: TextAlign.center)
                               ]else ...[
                                 ListTile(
-                                  trailing: _resultMap[item.key]['correct'] ? 
+                                  trailing: _resultList[item.key]['correct'] ? 
                                   const Icon(Icons.check, color: Colors.green) : 
                                   const Icon(Icons.close, color: Colors.red),
-                                  title: Text("输入："+item.value['submitText']),
+                                  title: Text("输入："+item['submitText']),
                                 ),
                                 ListTile(
-                                  title: Text("答案：${item.value['answer'] ?? item.value['answerList'].join(", ")}"
+                                  title: Text("答案：${item['answer'] ?? item['answerList'].join(", ")}"
                                   ),
                                 ),
                                 ListTile(
-                                  title: Text("回答用时：${item.value['answerTime']}s"),
+                                  title: Text("回答用时：${item['answerTime']}s"),
                                 )
                               ]
                             ],
