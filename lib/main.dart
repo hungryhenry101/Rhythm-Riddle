@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'generated/l10n.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:provider/provider.dart';
+import 'package:clarity_flutter/clarity_flutter.dart';
 
 import 'pages/login.dart';
 import 'pages/home.dart';
@@ -20,6 +21,7 @@ import 'pages/singleplayer_game/offline_game.dart';
 
 import 'pages/multiplayer_game/multi_player.dart';
 
+import '/clarity.dart';
 import 'utils/preferences.dart';
 import 'theme.dart';
 // ignore: unused_import
@@ -39,7 +41,12 @@ Future<void> main() async{
   
   final themeProvider = ThemeProvider();
   await themeProvider.init();
-  runApp(const RhythmRiddle());
+
+  if(clarityConfig.projectId.isEmpty) { //去clarity.dart中配置
+    runApp(const RhythmRiddle());
+  }else{
+    runApp(ClarityWidget(app: const RhythmRiddle(), clarityConfig: clarityConfig));
+  }
 }
 
 class RhythmRiddle extends StatefulWidget {

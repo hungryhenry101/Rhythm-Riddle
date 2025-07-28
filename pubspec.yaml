@@ -67,6 +67,7 @@ dependencies:
   archive: ^4.0.4
   path: ^1.9.0
   android_package_installer: ^0.0.3
+  clarity_flutter: ^1.2.0
 
 dev_dependencies:
   flutter_test:
