@@ -52,7 +52,7 @@ class _HomeState extends State<Home> {
 
     try{
       final response = await http.post(
-        Uri.parse('http://hungryhenry.xyz/api/get_playlist.php'),
+        Uri.parse('https://hungryhenry.cn/api/get_playlist.php'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8'
         }
@@ -199,7 +199,7 @@ class _HomeState extends State<Home> {
                                         width: 70,
                                         height: 70,
                                         child: Image.network(
-                                          "http://hungryhenry.xyz/musiclab/playlist/${_playlists[index]['id']}.jpg",
+                                          "https://hungryhenry.cn/musiclab/playlist/${_playlists[index]['id']}.jpg",
                                           loadingBuilder: (BuildContext context,
                                               Widget child,
                                               ImageChunkEvent? loadingProgress) {
@@ -339,7 +339,7 @@ class _HomeState extends State<Home> {
                 child: _isLogin ? CircleAvatar(
                   radius: 70,
                   backgroundImage: NetworkImage(
-                    "http://hungryhenry.xyz/blog/usr/uploads/avatar/$_uid.png",
+                    "https://hungryhenry.cn/blog/usr/uploads/avatar/$_uid.png",
                   )             
                 ) : ElevatedButton(
                   child: const Text('登录'),

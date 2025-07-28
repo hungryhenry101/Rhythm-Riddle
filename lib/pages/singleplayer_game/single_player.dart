@@ -29,7 +29,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
             playlistId == 0
                 ? const Center(child: CircularProgressIndicator())
                 : Image.network(
-                    "http://hungryhenry.xyz/musiclab/playlist/$playlistId.jpg",
+                    "https://hungryhenry.cn/musiclab/playlist/$playlistId.jpg",
                     width: 350,
                     height: 350,
                     fit: BoxFit.cover,
@@ -235,7 +235,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
               playlistId == 0
                   ? const Center(child: CircularProgressIndicator())
                   : Image.network(
-                      "http://hungryhenry.xyz/musiclab/playlist/$playlistId.jpg",
+                      "https://hungryhenry.cn/musiclab/playlist/$playlistId.jpg",
                       width: MediaQuery.of(context).size.width <
                               MediaQuery.of(context).size.height * 0.3
                           ? MediaQuery.of(context).size.width
@@ -271,34 +271,6 @@ class _SinglePlayerState extends State<SinglePlayer> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  selectedDifficulty = 0;
-                });
-              },
-              child: Container(
-                width: 80,
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  color: selectedDifficulty == 0
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey[300],
-                  border: Border.all(color: Colors.grey),
-                  borderRadius:
-                      const BorderRadius.horizontal(left: Radius.circular(10)),
-                ),
-                child: Center(
-                  child: Text(
-                    S.current.easy,
-                    style: TextStyle(
-                      color:
-                          selectedDifficulty == 0 ? Colors.white : Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                setState(() {
                   selectedDifficulty = 1;
                 });
               },
@@ -310,10 +282,12 @@ class _SinglePlayerState extends State<SinglePlayer> {
                       ? Theme.of(context).primaryColor
                       : Colors.grey[300],
                   border: Border.all(color: Colors.grey),
+                  borderRadius:
+                      const BorderRadius.horizontal(left: Radius.circular(10)),
                 ),
                 child: Center(
                   child: Text(
-                    S.current.normal,
+                    S.current.easy,
                     style: TextStyle(
                       color:
                           selectedDifficulty == 1 ? Colors.white : Colors.black,
@@ -339,10 +313,36 @@ class _SinglePlayerState extends State<SinglePlayer> {
                 ),
                 child: Center(
                   child: Text(
-                    S.current.hard,
+                    S.current.normal,
                     style: TextStyle(
                       color:
                           selectedDifficulty == 2 ? Colors.white : Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  selectedDifficulty = 3;
+                });
+              },
+              child: Container(
+                width: 80,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: selectedDifficulty == 3
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey[300],
+                  border: Border.all(color: Colors.grey),
+                ),
+                child: Center(
+                  child: Text(
+                    S.current.hard,
+                    style: TextStyle(
+                      color:
+                          selectedDifficulty == 3 ? Colors.white : Colors.black,
                     ),
                   ),
                 ),
@@ -379,9 +379,9 @@ class _SinglePlayerState extends State<SinglePlayer> {
           const SizedBox(height: 20),
           if (selectedDifficulty != 3) ...[
             Text(
-              selectedDifficulty == 0
+              selectedDifficulty == 1
                   ? S.current.easyInfo
-                  : selectedDifficulty == 1
+                  : selectedDifficulty == 2
                       ? S.current.normalInfo
                       : S.current.hardInfo,
               style: const TextStyle(fontSize: 18),

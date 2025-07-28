@@ -68,7 +68,7 @@ class _SearchState extends State<Search> {
   Future<void> search(String query) async {
     try{
       final response = await http.post(
-        Uri.parse('http://hungryhenry.xyz/api/search_playlist.php'),
+        Uri.parse('https://hungryhenry.cn/api/search_playlist.php'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

@@ -59,7 +59,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
       return;
     }else{
       Dio dio = Dio();
-      final String url = 'http://hungryhenry.xyz/musiclab/playlist/$playlistId.zip';
+      final String url = 'https://hungryhenry.cn/musiclab/playlist/$playlistId.zip';
       final String saveDir = _documentsDirectory + '/playlists/$playlistId.zip';
       try{
         await dio.download(
@@ -111,7 +111,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
     final Dio dio = Dio();
     try{
       final response = await dio.post(
-        'http://hungryhenry.xyz/api/getPlaylistInfo.php',
+        'https://hungryhenry.cn/api/getPlaylistInfo.php',
         data: {'id': playlistId},
         options: Options(
           headers: <String, String>{
@@ -229,7 +229,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
           child: Column(
             children: [
               Image.network(
-                "http://hungryhenry.xyz/musiclab/playlist/$playlistId.jpg",
+                "https://hungryhenry.cn/musiclab/playlist/$playlistId.jpg",
                 width: MediaQuery.of(context).size.width < MediaQuery.of(context).size.height * 0.3 ? MediaQuery.of(context).size.width : MediaQuery.of(context).size.height * 0.4,
                 fit: BoxFit.cover,
               ),
@@ -321,7 +321,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.network(
-                    "http://hungryhenry.xyz/musiclab/playlist/$playlistId.jpg",
+                    "https://hungryhenry.cn/musiclab/playlist/$playlistId.jpg",
                     width: 300,
                     height: 300,
                     fit: BoxFit.cover,

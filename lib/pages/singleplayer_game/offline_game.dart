@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
-import '../../generated/l10n.dart';
+import '/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
-import '../../utils/get_quiz.dart';
+import '/utils/get_quiz.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logger/logger.dart';
 
@@ -670,7 +670,7 @@ class _OfflineGameState extends State<OfflineGame> {
                     const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             Text(
-                "${S.current.difficulty}: ${_difficulty == 0 ? S.current.easy : _difficulty == 1 ? S.current.normal : _difficulty == 2 ? S.current.hard : S.current.custom}",
+                "${S.current.difficulty}: ${_difficulty == 1 ? S.current.easy : _difficulty == 2 ? S.current.normal : _difficulty == 3 ? S.current.hard : S.current.custom}",
                 style: const TextStyle(fontSize: 18),
                 softWrap: true),
           ],
@@ -735,7 +735,7 @@ class _OfflineGameState extends State<OfflineGame> {
                   const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           Text(
-              "${S.current.difficulty}: ${_difficulty == 0 ? S.current.easy : _difficulty == 1 ? S.current.normal : _difficulty == 2 ? S.current.hard : S.current.custom}",
+              "${S.current.difficulty}: ${_difficulty == 1 ? S.current.easy : _difficulty == 2 ? S.current.normal : _difficulty == 3 ? S.current.hard : S.current.custom}",
               style: const TextStyle(fontSize: 16),
               softWrap: true),
           const SizedBox(height: 20),

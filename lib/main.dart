@@ -15,13 +15,14 @@ import 'pages/local_playlists.dart';
 
 import 'pages/singleplayer_game/single_player.dart';
 import 'pages/singleplayer_game/game.dart';
-import 'pages/singleplayer_game/result.dart';
+import 'pages/singleplayer_game/result/result_page.dart';
 import 'pages/singleplayer_game/offline_game.dart';
 
 import 'pages/multiplayer_game/multi_player.dart';
 
 import 'utils/preferences.dart';
 import 'theme.dart';
+// ignore: unused_import
 import 'pages/test.dart';
 
 Future<void> main() async{  
@@ -81,7 +82,7 @@ class _RhythmRiddleState extends State<RhythmRiddle> {
           darkTheme: darkMode,
           themeMode: themeProvider.themeMode,
           debugShowCheckedModeBanner: false,
-          //home: Test(),
+          //home: TestPage(),
           home: LoginPage(),
           routes: {
             '/login': (context) => LoginPage(),

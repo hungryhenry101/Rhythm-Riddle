@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage>
     try {
       _loginText = S.current.checkingUpdate;
       Response res = await Dio()
-          .get('http://hungryhenry.xyz/rhythm_riddle/versions.json')
+          .get('https://hungryhenry.cn/rhythm_riddle/versions.json')
           .catchError((e) {
         logger.e("version check error: $e");
         showDialog(
@@ -118,7 +118,7 @@ class _LoginPageState extends State<LoginPage>
       if (Platform.isAndroid) {
         savePath = "${tempDir.path}/Rhythm-Riddle_$_latestVersion.apk";
         url =
-            "http://hungryhenry.xyz/rhythm_riddle/rhythm_riddle_android_latest.apk";
+            "https://hungryhenry.cn/rhythm_riddle/rhythm_riddle_android_latest.apk";
 
         if (await checkPermission(Permission.notification) == false) {
           Fluttertoast.showToast(msg: S.current.permissionExplain);
@@ -127,7 +127,7 @@ class _LoginPageState extends State<LoginPage>
       } else if (Platform.isWindows) {
         savePath = "${tempDir.path}/Rhythm-Riddle_$_latestVersion.exe";
         url =
-            "http://hungryhenry.xyz/rhythm_riddle/rhythm_riddle_windows_latest.exe";
+            "https://hungryhenry.cn/rhythm_riddle/rhythm_riddle_windows_latest.exe";
       } else {
         if (!mounted) return;
         Navigator.of(context).pop();
@@ -213,7 +213,7 @@ class _LoginPageState extends State<LoginPage>
                               onPressed: () {
                                 _launchInBrowser(Uri(
                                     scheme: "http",
-                                    host: "hungryhenry.xyz",
+                                    host: "192.168.0.100",
                                     path: "/rhythm_riddle/"));
                               },
                               child: Text(S.current.installManually))
@@ -395,7 +395,7 @@ class _LoginPageState extends State<LoginPage>
     }
     try {
       final response = await http
-          .post(Uri.parse('http://hungryhenry.xyz/api/login.php'),
+          .post(Uri.parse('https://hungryhenry.cn/api/login.php'),
               headers: <String, String>{
                 'Content-Type': 'application/json; charset=UTF-8',
               },
@@ -668,7 +668,7 @@ class _LoginPageState extends State<LoginPage>
                         onPressed: () => setState(() {
                               _launchInBrowser(Uri(
                                   scheme: 'http',
-                                  host: 'hungryhenry.xyz',
+                                  host: '192.168.0.100',
                                   path: 'blog/admin'));
                             }),
                         style: ButtonStyle(

@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
 import 'package:logger/logger.dart';
-import '../../models/quiz.dart';
+import '/models/quiz.dart';
+import '/models/result.dart';
 
 class SinglePlayerGame extends StatefulWidget {
   const SinglePlayerGame({super.key});
@@ -25,7 +26,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
   int _difficulty = 0;
 
   int _currentQuiz = -1; //题目计数器
-  final List _resultList = []; //结果存储
+  final List<Result> _resultList = []; //结果存储
   final TextEditingController _controller = TextEditingController();
 
   //音频&题目显示计时
@@ -87,7 +88,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
     try {
       int musicId = _quizzes[_played].musicId;
       await _audioPlayer
-          .setUrl("http://hungryhenry.xyz/musiclab/music/$musicId.mp3")
+          .setUrl("https://hungryhenry.cn/musiclab/music/$musicId.mp3")
           .timeout(const Duration(seconds: 15));
       await _audioPlayer.seek(Duration(
           seconds: _quizzes[_played].startAt)); // 跳到 startAt
@@ -189,7 +190,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
     try {
       final response = await http
           .get(Uri.parse(
-              "http://hungryhenry.xyz/api/getQuiz.php?id=$playlistId&difficulty=$difficulty"))
+              "https://hungryhenry.cn/api/getQuiz.php?id=$playlistId&difficulty=$difficulty"))
           .timeout(const Duration(seconds: 7));
       if (!mounted) return;
       responseBody = response.body;
@@ -263,14 +264,18 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
         if (_currentAnswerTime == 0 && mounted) {
           setState(() {
             _submittedOption = "bruhtimeout";
-            _resultList.add({
-              "quizType": _quizzes[_currentQuiz].quizType,
-              "answer": _quizzes[_currentQuiz].getAnswer(),
-              "musicId": _quizzes[_currentQuiz].musicId,
-              "submitText": "bruhtimeout",
-              "options": _quizzes[_currentQuiz].options,
-              "answerTime": _answerTime
-            });
+            _resultList.add(
+              Result(
+                quizType: _quizzes[_currentQuiz].quizType,
+                correctAnswers: _quizzes[_currentQuiz].getAnswer(),
+                musicId: _quizzes[_currentQuiz].musicId,
+                artistId: _quizzes[_currentQuiz].artistId,
+                albumId: _quizzes[_currentQuiz].albumId,
+                submission: _submittedOption!,
+                options: _quizzes[_currentQuiz].options,
+                answerTime: _answerTime,
+              )
+            );
           });
           if (!_audioPlayer.playing) {
             _audioPlayer.play();
@@ -508,14 +513,16 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                             onSubmitted: (value) {
                               setState(() {
                                 _submittedOption = value;
-                                _resultList.add({
-                                  "quizType": quiz.quizType,
-                                  "answer": answerList,
-                                  "submitText": _submittedOption,
-                                  "musicId": quiz.musicId,
-                                  "options": quiz.options, //will be null if it's an enter quiz
-                                  "answerTime": _answerTime - _currentAnswerTime
-                                });
+                                _resultList.add(Result(
+                                  quizType: quiz.quizType,
+                                  correctAnswers: answerList,
+                                  musicId: quiz.musicId,
+                                  albumId: quiz.albumId,
+                                  artistId: quiz.artistId,
+                                  submission: _submittedOption!,
+                                  options: quiz.options,
+                                  answerTime: _answerTime - _currentAnswerTime
+                                ));
                                 _currentAnswerTime = _answerTime;
                               });
                               if (!_audioPlayer.playing) {
@@ -529,7 +536,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                     const SizedBox(height: 10),
                     if (_submittedOption == null) ...[
                       Text(S.current.tip),
-                      Text(tip!,
+                      Text(tip ?? "",
                           style:
                               const TextStyle(letterSpacing: 2, fontSize: 18))
                     ] else ...[
@@ -540,12 +547,12 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                       const SizedBox(height: 10),
                       Image.network(
                           quizType == QuizType.enterMusic
-                              ? "http://hungryhenry.xyz/musiclab/album/${quiz.albumId}.jpg"
+                              ? "https://hungryhenry.cn/musiclab/album/${quiz.albumId}.jpg"
                               : quizType == QuizType.enterArtist
-                                  ? "http://hungryhenry.xyz/musiclab/artist/${quiz.artistId}_logo.jpg"
+                                  ? "https://hungryhenry.cn/musiclab/artist/${quiz.artistId}_logo.jpg"
                                   : quizType == QuizType.enterAlbum
-                                      ? "http://hungryhenry.xyz/musiclab/album/${quiz.albumId}.jpg"
-                                      : "http://hungryhenry.xyz/musiclab/album/${quiz.albumId}.jpg",
+                                      ? "https://hungryhenry.cn/musiclab/album/${quiz.albumId}.jpg"
+                                      : "https://hungryhenry.cn/musiclab/album/${quiz.albumId}.jpg",
                           width: 150,
                           height: 150, loadingBuilder: (BuildContext context,
                               Widget child, ImageChunkEvent? loadingProgress) {
@@ -583,18 +590,19 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
             //提交按钮
             ElevatedButton(
               onPressed: () {
-                logger
-                    .i("submitted with ${_selectedOption ?? _controller.text}");
+                logger.i("submitted with ${_selectedOption ?? _controller.text}");
                 setState(() {
                   _submittedOption = _selectedOption ?? _controller.text;
-                  _resultList.add({
-                    "quizType": quiz.quizType,
-                    "answer": answerList,
-                    "submitText": _submittedOption,
-                    "musicId": quiz.musicId,
-                    "options": quiz.options,
-                    "answerTime": _answerTime - _currentAnswerTime
-                  });
+                  _resultList.add(Result(
+                    quizType: quiz.quizType,
+                    correctAnswers: answerList,
+                    musicId: quiz.musicId,
+                    artistId: quiz.artistId,
+                    albumId: quiz.albumId,
+                    submission: _submittedOption!,
+                    options: quiz.options,
+                    answerTime: _answerTime - _currentAnswerTime
+                  ));
                   _currentAnswerTime = _answerTime;
                 });
 
@@ -638,16 +646,16 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
               ElevatedButton(
                 onPressed: () {
                   _audioPlayer.stop();
-                  logger.i(_resultList);
-                  Navigator.pushReplacementNamed(
-                      context, "/SinglePlayerGameResult",
-                      arguments: {
-                        "quizType": quiz.quizType,
-                        "playlistId": _playlistId,
-                        "playlistTitle": _playlistTitle,
-                        "difficulty": _difficulty,
-                        "resultList": _resultList
-                      });
+                  final args = {
+                    "playlistId": _playlistId,
+                    "playlistTitle": _playlistTitle,
+                    "difficulty": _difficulty,
+                    "resultList": _resultList
+                  };
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/SinglePlayerGameResult', (route) => false,
+                      arguments: args);
+                  logger.i(_resultList.map((e) => e.toJson()).toList());
                 },
                 child: Text(S.current.end),
               )
@@ -681,13 +689,18 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                   //播放/暂停按钮
                   IconButton(
                     onPressed: () {
-                      _audioPlayer.playing
+                      if(_audioPlayer.processingState != ProcessingState.completed 
+                      && _audioPlayer.processingState != ProcessingState.idle){
+                        _audioPlayer.playing
                           ? _audioPlayer.pause()
                           : _audioPlayer.play();
+                        }
                     },
                     icon: _audioPlayer.playing
                         ? const Icon(Icons.pause)
                         : _audioPlayer.processingState != ProcessingState.ready
+                        && _audioPlayer.processingState != ProcessingState.completed
+                        && _audioPlayer.processingState != ProcessingState.idle
                             ? const CircularProgressIndicator()
                             : const Icon(Icons.play_arrow),
                   ),
@@ -752,7 +765,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
             _playlistId == 0
                 ? const Center(child: CircularProgressIndicator())
                 : Image.network(
-                    "http://hungryhenry.xyz/musiclab/playlist/$_playlistId.jpg",
+                    "https://hungryhenry.cn/musiclab/playlist/$_playlistId.jpg",
                     width: MediaQuery.of(context).size.width * 0.3,
                     fit: BoxFit.cover),
             const SizedBox(height: 16),
@@ -766,7 +779,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
               const SizedBox(height: 14)
             ],
             Text(
-                "${S.current.difficulty}: ${_difficulty == 0 ? S.current.easy : _difficulty == 1 ? S.current.normal : _difficulty == 2 ? S.current.hard : S.current.custom}",
+                "${S.current.difficulty}: ${_difficulty == 1 ? S.current.easy : _difficulty == 2 ? S.current.normal : _difficulty == 3 ? S.current.hard : S.current.custom}",
                 style: const TextStyle(fontSize: 18),
                 softWrap: true),
           ],
@@ -810,9 +823,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                           : const SizedBox.shrink(),
                     ),
               const SizedBox(height: 20),
-              if (_currentQuiz != -1 &&
-                  _canShowQuiz &&
-                  _quizzes[_currentQuiz] != null) ...[
+              if (_currentQuiz != -1 && _canShowQuiz) ...[
                 _showQuiz(_quizzes[_currentQuiz], _difficulty)
               ],
             ],
@@ -831,7 +842,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                   const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           Text(
-              "${S.current.difficulty}: ${_difficulty == 0 ? S.current.easy : _difficulty == 1 ? S.current.normal : _difficulty == 2 ? S.current.hard : S.current.custom}",
+              "${S.current.difficulty}: ${_difficulty == 1 ? S.current.easy : _difficulty == 2 ? S.current.normal : _difficulty == 3 ? S.current.hard : S.current.custom}",
               style: const TextStyle(fontSize: 16),
               softWrap: true),
           const SizedBox(height: 20),
@@ -878,15 +889,13 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                   const SizedBox(height: 20),
                   if (_countdown > 0) ...[
                     Image.network(
-                        "http://hungryhenry.xyz/musiclab/playlist/$_playlistId.jpg",
+                        "https://hungryhenry.cn/musiclab/playlist/$_playlistId.jpg",
                         width: 150,
                         height: 150)
                   ],
                 ],
               ),
-              if (_currentQuiz != -1 &&
-                  _canShowQuiz &&
-                  _quizzes[_currentQuiz] != null) ...[
+              if (_currentQuiz != -1 && _canShowQuiz) ...[
                 _showQuiz(_quizzes[_currentQuiz], _difficulty)
               ],
             ],
