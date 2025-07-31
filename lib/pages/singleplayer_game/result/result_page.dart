@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import '/generated/l10n.dart';
+import '/generated/app_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
@@ -76,11 +76,11 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog(context: context, builder: (context){
             return AlertDialog(
-              content: Text(S.current.connectError),
+              content: Text(AppLocalizations.of(context)!.connectError),
               actions: [
                 TextButton(onPressed: () {
                   Navigator.of(context).pop();
-                }, child: Text(S.current.ok)),
+                }, child: Text(AppLocalizations.of(context)!.ok)),
               ],
             );
           });
@@ -92,10 +92,10 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             showDialog(context: context, builder: (context){
               return AlertDialog(
-                content: Text(S.current.unknownError),
+                content: Text(AppLocalizations.of(context)!.unknownError),
                 actions: [
                   TextButton(onPressed: () {Navigator.of(context).pop();}, 
-                  child: Text(S.current.back))
+                  child: Text(AppLocalizations.of(context)!.back))
                 ],
               );
             });
@@ -106,6 +106,19 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
   }
 
   Future<void> _like () async {
+    if(_password == null || _uid == null){
+      showDialog(context: context, builder: (context) {
+        return AlertDialog(
+          content: Text(AppLocalizations.of(context)!.loginRequired),
+          actions: [
+            TextButton(onPressed: () {
+              Navigator.of(context).pop();
+            }, child: Text(AppLocalizations.of(context)!.ok)),
+          ],
+        );
+      });
+      return;
+    }
     try{
       if(_liked){
         setState(() {
@@ -171,11 +184,11 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
       if(e is TimeoutException){
         showDialog(context: context, builder:(context) {
           return AlertDialog(
-            content: Text(S.current.connectError),
+            content: Text(AppLocalizations.of(context)!.connectError),
             actions: [
               TextButton(onPressed: () {
                 Navigator.of(context).pop();
-              }, child: Text(S.current.ok)),
+              }, child: Text(AppLocalizations.of(context)!.ok)),
             ],
           );
         });
@@ -184,10 +197,10 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
         if(mounted){
           showDialog(context: context, builder: (context){
             return AlertDialog(
-              content: Text(S.current.unknownError),
+              content: Text(AppLocalizations.of(context)!.unknownError),
               actions: [
                 TextButton(onPressed: () {Navigator.of(context).pop();}, 
-                child: Text(S.current.back))
+                child: Text(AppLocalizations.of(context)!.back))
               ],
             );
           });
@@ -250,7 +263,7 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.current.quizResult(_playlistTitle ?? '')),
+        title: Text(AppLocalizations.of(context)!.quizResult(_playlistTitle ?? '')),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -275,7 +288,7 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
               const SizedBox(height: 5),
 
               Text(
-                "$_correctCount / $_quizCount ${S.current.quizzes}",
+                "$_correctCount / $_quizCount ${AppLocalizations.of(context)!.quizzes}",
                 style: TextStyle(fontSize: 18),
               ),
 
@@ -327,7 +340,7 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
           
               const SizedBox(height: 16),
               Text(
-                S.current.details,
+                AppLocalizations.of(context)!.details,
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
 
@@ -364,7 +377,7 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
               const SizedBox(height: 16),
               // 返回按钮
               ElevatedButton(
-                child: Text(S.current.back),
+                child: Text(AppLocalizations.of(context)!.back),
                 onPressed: () {
                   Navigator.of(context).pushNamedAndRemoveUntil('/home', arguments: _playlistId, (route) => false);
                 },

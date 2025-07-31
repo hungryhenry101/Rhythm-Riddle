@@ -47,3 +47,4 @@ android/gradle.properties
 
 /lib/pages/test.dart
 /api/
+/lib/clarity.dart

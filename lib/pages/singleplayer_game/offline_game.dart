@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
-import '/generated/l10n.dart';
+import '/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 import '/utils/get_quiz.dart';
@@ -101,7 +101,7 @@ class _OfflineGameState extends State<OfflineGame> {
               context: context,
               builder: (context) {
                 return AlertDialog(
-                  content: Text(S.current.connectError),
+                  content: Text(AppLocalizations.of(context)!.connectError),
                   actions: [
                     TextButton(
                         onPressed: () {
@@ -112,7 +112,7 @@ class _OfflineGameState extends State<OfflineGame> {
                           Navigator.of(context).pushNamed('/PlaylistInfo',
                               arguments: _playlistId);
                         },
-                        child: Text(S.current.back)),
+                        child: Text(AppLocalizations.of(context)!.back)),
                   ],
                 );
               });
@@ -124,7 +124,7 @@ class _OfflineGameState extends State<OfflineGame> {
               context: context,
               builder: (context) {
                 return AlertDialog(
-                  content: Text(S.current.unknownError),
+                  content: Text(AppLocalizations.of(context)!.unknownError),
                   actions: [
                     TextButton(
                         onPressed: () {
@@ -135,7 +135,7 @@ class _OfflineGameState extends State<OfflineGame> {
                           Navigator.of(context).pushNamed('/PlaylistInfo',
                               arguments: _playlistId);
                         },
-                        child: Text(S.current.back)),
+                        child: Text(AppLocalizations.of(context)!.back)),
                   ],
                 );
               });
@@ -253,39 +253,39 @@ class _OfflineGameState extends State<OfflineGame> {
 
     switch (quizType) {
       case 0: //选择歌曲
-        question = S.current.chooseMusic;
+        question = AppLocalizations.of(context)!.chooseMusic;
         musicInfo = quizInfo["answer"] + " - " + quizInfo["artist"];
         break;
       case 1: //选择歌手
-        question = S.current.chooseArtist;
+        question = AppLocalizations.of(context)!.chooseArtist;
         musicInfo = quizInfo["music"] + " - " + quizInfo["answer"];
         break;
       case 2: //选择专辑
-        question = S.current.chooseAlbum;
+        question = AppLocalizations.of(context)!.chooseAlbum;
         musicInfo = quizInfo["music"] + " - " + quizInfo["album_artist"];
         break;
       case 3: //选择流派
-        question = S.current.chooseGenre;
+        question = AppLocalizations.of(context)!.chooseGenre;
         musicInfo = quizInfo["music"] + " - " + quizInfo["artist"];
         break;
       case 4: //填写歌曲
-        question = S.current.enterMusic;
+        question = AppLocalizations.of(context)!.enterMusic;
         musicInfo = quizInfo["answer"] + " - " + quizInfo["artist"];
         break;
       case 5: //填写歌手
-        question = S.current.enterArtist;
+        question = AppLocalizations.of(context)!.enterArtist;
         musicInfo = quizInfo["music"] + " - " + quizInfo["answer"];
         break;
       case 6: //填写专辑
-        question = S.current.enterAlbum;
+        question = AppLocalizations.of(context)!.enterAlbum;
         musicInfo = quizInfo["answer"] + " - " + quizInfo["artist"];
         break;
       case 7: //填写流派
-        question = S.current.enterGenre;
+        question = AppLocalizations.of(context)!.enterGenre;
         musicInfo = quizInfo["music"] + " - " + quizInfo["artist"];
         break;
       default:
-        S.current.unknownError;
+        AppLocalizations.of(context)!.unknownError;
         break;
     }
 
@@ -433,12 +433,12 @@ class _OfflineGameState extends State<OfflineGame> {
                     ),
                     const SizedBox(height: 10),
                     if (_submittedOption == null) ...[
-                      Text(S.current.tip),
+                      Text(AppLocalizations.of(context)!.tip),
                       Text(tip!,
                           style:
                               const TextStyle(letterSpacing: 2, fontSize: 18))
                     ] else ...[
-                      Text(S.current.correctAnswer),
+                      Text(AppLocalizations.of(context)!.correctAnswer),
                       Text(answerList != null ? answerList.join(", ") : answer,
                           style:
                               const TextStyle(letterSpacing: 2, fontSize: 18)),
@@ -511,14 +511,14 @@ class _OfflineGameState extends State<OfflineGame> {
                 Future.delayed(
                     const Duration(seconds: 1), () => _audioPlayer.play());
               },
-              child: Text(S.current.submit),
+              child: Text(AppLocalizations.of(context)!.submit),
             ),
           ] else ...[
             const SizedBox(height: 10),
             _submittedOption == "bruhtimeout"
                 ? const Text("时间到")
                 : _submittedOption!.toLowerCase() == answer.toLowerCase()
-                    ? Text(S.current.correct,
+                    ? Text(AppLocalizations.of(context)!.correct,
                         style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -527,17 +527,17 @@ class _OfflineGameState extends State<OfflineGame> {
                         ? answerList.any((item) =>
                                 item.toLowerCase() ==
                                 _submittedOption!.toLowerCase())
-                            ? Text(S.current.correct,
+                            ? Text(AppLocalizations.of(context)!.correct,
                                 style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.green))
-                            : Text(S.current.wrong,
+                            : Text(AppLocalizations.of(context)!.wrong,
                                 style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.red))
-                        : Text(S.current.wrong,
+                        : Text(AppLocalizations.of(context)!.wrong,
                             style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -559,7 +559,7 @@ class _OfflineGameState extends State<OfflineGame> {
                         "resultList": _resultList
                       });
                 },
-                child: Text(S.current.end),
+                child: Text(AppLocalizations.of(context)!.end),
               )
             ] else ...[
               //下一题
@@ -580,7 +580,7 @@ class _OfflineGameState extends State<OfflineGame> {
                     _startAudioCountdown();
                   });
                 },
-                child: Text(S.current.next),
+                child: Text(AppLocalizations.of(context)!.next),
               ),
             ],
             if (_submittedOption != null) ...[
@@ -670,7 +670,7 @@ class _OfflineGameState extends State<OfflineGame> {
                     const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             Text(
-                "${S.current.difficulty}: ${_difficulty == 1 ? S.current.easy : _difficulty == 2 ? S.current.normal : _difficulty == 3 ? S.current.hard : S.current.custom}",
+                "${AppLocalizations.of(context)!.difficulty}: ${_difficulty == 1 ? AppLocalizations.of(context)!.easy : _difficulty == 2 ? AppLocalizations.of(context)!.normal : _difficulty == 3 ? AppLocalizations.of(context)!.hard : AppLocalizations.of(context)!.custom}",
                 style: const TextStyle(fontSize: 18),
                 softWrap: true),
           ],
@@ -735,7 +735,7 @@ class _OfflineGameState extends State<OfflineGame> {
                   const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           Text(
-              "${S.current.difficulty}: ${_difficulty == 1 ? S.current.easy : _difficulty == 2 ? S.current.normal : _difficulty == 3 ? S.current.hard : S.current.custom}",
+              "${AppLocalizations.of(context)!.difficulty}: ${_difficulty == 1 ? AppLocalizations.of(context)!.easy : _difficulty == 2 ? AppLocalizations.of(context)!.normal : _difficulty == 3 ? AppLocalizations.of(context)!.hard : AppLocalizations.of(context)!.custom}",
               style: const TextStyle(fontSize: 16),
               softWrap: true),
           const SizedBox(height: 20),
@@ -877,7 +877,7 @@ class _OfflineGameState extends State<OfflineGame> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text("${S.current.singlePlayer}: $_playlistTitle"),
+        title: Text("${AppLocalizations.of(context)!.singlePlayer}: $_playlistTitle"),
       ),
       body: _getQuizError != null
           ? Center(child: Text("error❌: $_getQuizError!"))

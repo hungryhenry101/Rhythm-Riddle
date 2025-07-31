@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../generated/l10n.dart';
+import '/generated/app_localizations.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -55,7 +55,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
 
   Future<void> _downloadPlaylist() async {
     if(!await _checkPermission()){
-      Fluttertoast.showToast(msg: S.current.permissionError(S.current.storagePerm));
+      Fluttertoast.showToast(msg: AppLocalizations.of(context)!.permissionError(AppLocalizations.of(context)!.storagePerm));
       return;
     }else{
       Dio dio = Dio();
@@ -88,13 +88,13 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
         });
         jsonFile.writeAsStringSync(json.encode(localPlaylists));
         setState(() {
-          downloadText = S.current.downloaded;
+          downloadText = AppLocalizations.of(context)!.downloaded;
         });
       }catch(e){
         if(e is TimeoutException){
           await showDialog(context: context, builder: (context){
             return AlertDialog(
-                content: Text(S.current.connectError),
+                content: Text(AppLocalizations.of(context)!.connectError),
                 actions: [
                   TextButton(onPressed: () { Navigator.of(context).pop();}, child: Text("OK"))
                 ],
@@ -136,11 +136,11 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
       }else if(response.statusCode == 404 && mounted){
         await showDialog(context: context, builder: (context){
           return AlertDialog(
-              content: Text(S.current.bug),
+              content: Text(AppLocalizations.of(context)!.bug),
               actions: [
                 TextButton(onPressed: () { 
                   Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-                }, child: Text(S.current.ok)),
+                }, child: Text(AppLocalizations.of(context)!.ok)),
               ],
           );
         });
@@ -152,11 +152,11 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
         if(mounted){
           await showDialog(context: context, builder: (context){
             return AlertDialog(
-                content: Text(S.current.unknownError),
+                content: Text(AppLocalizations.of(context)!.unknownError),
                 actions: [
                   TextButton(onPressed: () { 
                     Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-                  }, child: Text(S.current.ok)),
+                  }, child: Text(AppLocalizations.of(context)!.ok)),
                 ],
             );
           });
@@ -171,20 +171,20 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
         if(e is TimeoutException){
           await showDialog(context: context, builder: (context){
             return AlertDialog(
-                content: Text(S.current.connectError),
+                content: Text(AppLocalizations.of(context)!.connectError),
                 actions: [
                     TextButton(onPressed: () { Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-}, child: Text(S.current.ok)),
+}, child: Text(AppLocalizations.of(context)!.ok)),
                 ],
             );
           });
         }else{
           await showDialog(context: context, builder: (context){
             return AlertDialog(
-                content: Text(S.current.bug),
+                content: Text(AppLocalizations.of(context)!.bug),
                 actions: [
                     TextButton(onPressed: () { Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-}, child: Text(S.current.ok)),
+}, child: Text(AppLocalizations.of(context)!.ok)),
                 ],
             );
           });
@@ -209,11 +209,11 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
         final File path = File(_documentsDirectory + '/playlists/$playlistId.zip');
         if(path.existsSync()){
           setState(() {
-            downloadText = S.current.downloaded;
+            downloadText = AppLocalizations.of(context)!.downloaded;
           });
         }else{
           setState(() {
-            downloadText = S.current.download;
+            downloadText = AppLocalizations.of(context)!.download;
           });
         }
       });
@@ -256,7 +256,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
           ),
         ),
         _buildInfoRow(),
-        Text(S.current.contains(musicTitle, artist, musicCount)),
+        Text(AppLocalizations.of(context)!.contains(musicTitle, artist, musicCount)),
         Row(
           mainAxisAlignment:MainAxisAlignment.center,
           children: [ElevatedButton(onPressed: (){
@@ -270,7 +270,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
                 "description": description,
               }
             );
-          }, child: Text(S.current.singlePlayer)),
+          }, child: Text(AppLocalizations.of(context)!.singlePlayer)),
             const SizedBox(width:50),
             /*if(isLogin)...[
               ElevatedButton(
@@ -288,7 +288,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
                       "count": musicCount
                     }
                   );
-                }, child: Text(S.current.multiPlayer)
+                }, child: Text(AppLocalizations.of(context)!.multiPlayer)
               )
             ] else...[*/
               TextButton(
@@ -297,7 +297,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
                   backgroundColor: WidgetStateProperty.all(Theme.of(context).primaryColorLight),
                   padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 25, vertical: 10)),
                 ), 
-                child:Text(S.current.multiPlayer)
+                child:Text(AppLocalizations.of(context)!.multiPlayer)
               )
             //]
           ]
@@ -327,8 +327,8 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
                     fit: BoxFit.cover,
                 ),
                 const SizedBox(height: 10),
-                Text("${S.current.creator}: $createdBy", style: const TextStyle(fontSize: 16)),
-                Text("${S.current.createTime}: $createTime", style: const TextStyle(fontSize: 16)),
+                Text("${AppLocalizations.of(context)!.creator}: $createdBy", style: const TextStyle(fontSize: 16)),
+                Text("${AppLocalizations.of(context)!.createTime}: $createTime", style: const TextStyle(fontSize: 16)),
               ],
             ),
           ),
@@ -352,7 +352,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
                 SizedBox(height: MediaQuery.of(context).size.height * 0.1),
                 _buildInfoRow(),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                Text(S.current.contains(musicTitle, artist, musicCount)),
+                Text(AppLocalizations.of(context)!.contains(musicTitle, artist, musicCount)),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.06),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -371,7 +371,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
                           "count": musicCount
                         }
                       );
-                    }, child: Text(S.current.singlePlayer)),
+                    }, child: Text(AppLocalizations.of(context)!.singlePlayer)),
                     SizedBox(width:MediaQuery.of(context).size.width * 0.045),
                     /*if(isLogin)...[
                       ElevatedButton(
@@ -389,7 +389,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
                               "count": musicCount
                             }
                           );
-                        }, child: Text(S.current.multiPlayer)
+                        }, child: Text(AppLocalizations.of(context)!.multiPlayer)
                       )
                     ] else...[*/
                       TextButton(
@@ -398,7 +398,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
                           backgroundColor: WidgetStateProperty.all(Theme.of(context).primaryColorLight),
                           padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 25, vertical: 10)),
                         ),
-                        child:Text(S.current.multiPlayer)
+                        child:Text(AppLocalizations.of(context)!.multiPlayer)
                       )
                     //]
                   ],
@@ -425,7 +425,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
               musicCount.toString(),
               style: const TextStyle(fontSize: 16),
             ),
-            Text(S.current.songs),
+            Text(AppLocalizations.of(context)!.songs),
           ],
         ),
         // 游玩数量
@@ -437,7 +437,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
               played.toString(),
               style: const TextStyle(fontSize: 16),
             ),
-            Text(S.current.played),
+            Text(AppLocalizations.of(context)!.played),
           ],
         ),
         // 点赞数量
@@ -449,27 +449,27 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
               likes.toString(),
               style: const TextStyle(fontSize: 16),
             ),
-            Text(S.current.likes),
+            Text(AppLocalizations.of(context)!.likes),
           ],
         ),
         Column(
           children: [
             IconButton(
               icon: const Icon(Icons.download),
-              color: downloadText == S.current.downloaded ? Colors.orange : Colors.grey,
+              color: downloadText == AppLocalizations.of(context)!.downloaded ? Colors.orange : Colors.grey,
               onPressed: () {
-                if(downloadText == S.current.download) {
+                if(downloadText == AppLocalizations.of(context)!.download) {
                   setState(() {
-                    downloadText = S.current.downloading("");
+                    downloadText = AppLocalizations.of(context)!.downloading("");
                   });
                   _downloadPlaylist();
-                }else if(downloadText == S.current.downloading("")){
+                }else if(downloadText == AppLocalizations.of(context)!.downloading("")){
                   cancelToken.cancel();
                   setState(() {
-                    downloadText = S.current.downloaded;
+                    downloadText = AppLocalizations.of(context)!.downloaded;
                     downloadProgress = 0;
                   });
-                }else if(downloadText == S.current.downloaded){
+                }else if(downloadText == AppLocalizations.of(context)!.downloaded){
                   Navigator.pushNamed(context, "/localPlaylists");
                 }
               }

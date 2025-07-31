@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'generated/l10n.dart';
+import '/generated/app_localizations.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:clarity_flutter/clarity_flutter.dart';
@@ -76,7 +76,7 @@ class _RhythmRiddleState extends State<RhythmRiddle> {
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) => MaterialApp(
           localizationsDelegates: [
-            S.delegate,
+            AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate

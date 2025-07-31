@@ -1,4 +1,5 @@
 {
+    "@@locale": "en",
     "name": "Rhythm Riddle",
     "login": "Login", "loggingIn": "Loggin In...",
     "or": "or",
@@ -31,6 +32,7 @@
     "search": "Search playlist, song and artist",
 
     "songs": "Songs", "played": "Played", "likes": "Likes", "downloaded": "Downloaded", "download": "Download",
+    "loginRequired": "Please login first",
     "bug": "A bug appeared, pls report to hungryhenry101@outlook.com",
     "singlePlayer": "Single Player", "multiPlayer": "Multi Player (Coming Soon)",
     "singlePlayerOptions": "Single Player Options", "multiPlayerOptions": "Multi Player Options",

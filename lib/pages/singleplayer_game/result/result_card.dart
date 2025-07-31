@@ -5,7 +5,7 @@ import 'package:logger/logger.dart';
 
 import '/models/result.dart';
 import '/models/quiz.dart';
-import '/generated/l10n.dart';
+import '/generated/app_localizations.dart';
 
 class ResultCard extends StatefulWidget {
   final bool active;
@@ -82,11 +82,11 @@ class _ResultCardState extends State<ResultCard> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              content: Text(S.current.connectError),
+              content: Text(AppLocalizations.of(context)!.connectError),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(S.current.back),
+                  child: Text(AppLocalizations.of(context)!.back),
                 ),
               ],
             );
@@ -173,12 +173,17 @@ class _ResultCardState extends State<ResultCard> {
                 ),
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     _position != null ? _positionText : '--:--',
                     style: const TextStyle(fontSize: 16.0),
                   ),
-                  const Spacer(),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width - 230,
+                    child: Text(widget.result.music, textAlign: TextAlign.center,),
+                  ),
                   Text(
                     _duration != null ? _durationText : '--:--',
                     style: const TextStyle(fontSize: 16.0),
@@ -189,7 +194,7 @@ class _ResultCardState extends State<ResultCard> {
                 children: [
                   Expanded(
                     child: Text(
-                      "${widget.index + 1}. ${widget.result.getQuestion()}",
+                      "${widget.index + 1}. ${widget.result.getQuestion(context)}",
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -219,13 +224,13 @@ class _ResultCardState extends State<ResultCard> {
                                   context: context,
                                   builder: (context) {
                                     return AlertDialog(
-                                      content: Text(S.current.connectError),
+                                      content: Text(AppLocalizations.of(context)!.connectError),
                                       actions: [
                                         TextButton(
                                             onPressed: () {
                                               Navigator.pop(context);
                                             },
-                                            child: Text(S.current.back)),
+                                            child: Text(AppLocalizations.of(context)!.back)),
                                       ],
                                     );
                                   },
@@ -237,14 +242,14 @@ class _ResultCardState extends State<ResultCard> {
                                     context: context,
                                     builder: (context) {
                                       return AlertDialog(
-                                        content: Text(S.current.unknownError),
+                                        content: Text(AppLocalizations.of(context)!.unknownError),
                                         actions: [
                                           TextButton(
                                             onPressed: () {
                                               Navigator.of(context)
                                                   .pushNamedAndRemoveUntil('/home', (route) => false);
                                             },
-                                            child: Text(S.current.back),
+                                            child: Text(AppLocalizations.of(context)!.back),
                                           ),
                                         ],
                                       );
@@ -277,7 +282,7 @@ class _ResultCardState extends State<ResultCard> {
 }
 
 Widget _buildInputQuestion(Result result) {
-  final bool isCorrect = result.correctAnswers.contains(result.submission);  
+  final bool isCorrect = submissionCorrect(result);
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [

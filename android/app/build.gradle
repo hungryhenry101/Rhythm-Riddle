@@ -24,12 +24,12 @@ if (flutterVersionName == null) {
 }
 
 android {
+    ndkVersion = "27.0.12077973"
     compileSdkVersion 34
     namespace = "com.hungryhenry.rhythm_riddle"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
-
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility = JavaVersion.VERSION_18
         targetCompatibility = JavaVersion.VERSION_18
     }
@@ -60,5 +60,5 @@ flutter {
 }
 
 dependencies {
-  coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+  coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }

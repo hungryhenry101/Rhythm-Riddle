@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import '/generated/l10n.dart';
+import '/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage>
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
-  String _loginText = S.current.login;
+  String _loginText = "";
   Logger logger = Logger();
 
   String? _currentVersion;
@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage>
 
   Future<bool> _checkUpdate() async {
     try {
-      _loginText = S.current.checkingUpdate;
+      _loginText = AppLocalizations.of(context)!.checkingUpdate;
       Response res = await Dio()
           .get('https://hungryhenry.cn/rhythm_riddle/versions.json')
           .catchError((e) {
@@ -63,18 +63,18 @@ class _LoginPageState extends State<LoginPage>
             context: context,
             builder: (context) {
               return AlertDialog(
-                content: Text(S.current.unknownError),
+                content: Text(AppLocalizations.of(context)!.unknownError),
                 actions: [
                   TextButton(
                       onPressed: () {
                         Navigator.pushNamed(context, '/login');
                       },
-                      child: Text(S.current.retry)),
+                      child: Text(AppLocalizations.of(context)!.retry)),
                   TextButton(
                       onPressed: () {
                         Navigator.of(context).pop(false);
                       },
-                      child: Text(S.current.ok)),
+                      child: Text(AppLocalizations.of(context)!.ok)),
                 ],
               );
             });
@@ -121,7 +121,7 @@ class _LoginPageState extends State<LoginPage>
             "https://hungryhenry.cn/rhythm_riddle/rhythm_riddle_android_latest.apk";
 
         if (await checkPermission(Permission.notification) == false) {
-          Fluttertoast.showToast(msg: S.current.permissionExplain);
+          Fluttertoast.showToast(msg: AppLocalizations.of(context)!.permissionExplain);
         }
         await NotificationService.init();
       } else if (Platform.isWindows) {
@@ -135,18 +135,18 @@ class _LoginPageState extends State<LoginPage>
             context: context,
             builder: (context) {
               return AlertDialog(
-                content: Text(S.current.unknownError),
+                content: Text(AppLocalizations.of(context)!.unknownError),
                 actions: [
                   TextButton(
                       onPressed: () {
                         Navigator.pushNamed(context, '/login');
                       },
-                      child: Text(S.current.retry)),
+                      child: Text(AppLocalizations.of(context)!.retry)),
                   TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: Text(S.current.ok)),
+                      child: Text(AppLocalizations.of(context)!.ok)),
                 ],
               );
             });
@@ -176,9 +176,9 @@ class _LoginPageState extends State<LoginPage>
 
             NotificationService.showProgressNotification(
                 id: 1,
-                title: S.current.dlUpdate,
+                title: AppLocalizations.of(context)!.dlUpdate,
                 body:
-                    "${S.current.downloading(_latestVersion!)} | ${_speed.toStringAsFixed(1)}mb/s",
+                    "${AppLocalizations.of(context)!.downloading(_latestVersion!)} | ${_speed.toStringAsFixed(1)}mb/s",
                 progress: _progress);
           });
           if (Platform.isAndroid) {
@@ -187,14 +187,14 @@ class _LoginPageState extends State<LoginPage>
               logger.e("request install packages permission error");
               if (mounted) {
                 setState(() {
-                  _loginText = S.current.restart;
+                  _loginText = AppLocalizations.of(context)!.restart;
                 });
                 showDialog(
                     context: context,
                     builder: (context) {
                       return AlertDialog(
                         content: Text(
-                            S.current.permissionError(S.current.installPerm)),
+                            AppLocalizations.of(context)!.permissionError(AppLocalizations.of(context)!.installPerm)),
                         actions: [
                           TextButton(
                               onPressed: () async {
@@ -202,13 +202,13 @@ class _LoginPageState extends State<LoginPage>
                                         Permission.requestInstallPackages) ==
                                     false) {
                                   Fluttertoast.showToast(
-                                      msg: S.current.permissionError(
-                                          S.current.installPerm));
+                                      msg: AppLocalizations.of(context)!.permissionError(
+                                          AppLocalizations.of(context)!.installPerm));
                                   Navigator.of(context).pushNamedAndRemoveUntil(
                                       '/login', (route) => false);
                                 }
                               },
-                              child: Text(S.current.retry)),
+                              child: Text(AppLocalizations.of(context)!.retry)),
                           TextButton(
                               onPressed: () {
                                 _launchInBrowser(Uri(
@@ -216,7 +216,7 @@ class _LoginPageState extends State<LoginPage>
                                     host: "192.168.0.100",
                                     path: "/rhythm_riddle/"));
                               },
-                              child: Text(S.current.installManually))
+                              child: Text(AppLocalizations.of(context)!.installManually))
                         ],
                       );
                     });
@@ -232,18 +232,18 @@ class _LoginPageState extends State<LoginPage>
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          content: Text(S.current.unknownError),
+                          content: Text(AppLocalizations.of(context)!.unknownError),
                           actions: [
                             TextButton(
                                 onPressed: () {
                                   Navigator.pushNamed(context, '/login');
                                 },
-                                child: Text(S.current.retry)),
+                                child: Text(AppLocalizations.of(context)!.retry)),
                             TextButton(
                                 onPressed: () {
                                   Navigator.of(context).pop(false);
                                 },
-                                child: Text(S.current.ok)),
+                                child: Text(AppLocalizations.of(context)!.ok)),
                           ],
                         );
                       });
@@ -266,18 +266,18 @@ class _LoginPageState extends State<LoginPage>
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      content: Text(S.current.unknownError),
+                      content: Text(AppLocalizations.of(context)!.unknownError),
                       actions: [
                         TextButton(
                             onPressed: () {
                               Navigator.pushNamed(context, '/login');
                             },
-                            child: Text(S.current.retry)),
+                            child: Text(AppLocalizations.of(context)!.retry)),
                         TextButton(
                             onPressed: () {
                               Navigator.of(context).pop(false);
                             },
-                            child: Text(S.current.ok)),
+                            child: Text(AppLocalizations.of(context)!.ok)),
                       ],
                     );
                   });
@@ -290,18 +290,18 @@ class _LoginPageState extends State<LoginPage>
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      content: Text(S.current.unknownError),
+                      content: Text(AppLocalizations.of(context)!.unknownError),
                       actions: [
                         TextButton(
                             onPressed: () {
                               Navigator.pushNamed(context, '/login');
                             },
-                            child: Text(S.current.retry)),
+                            child: Text(AppLocalizations.of(context)!.retry)),
                         TextButton(
                             onPressed: () {
                               Navigator.of(context).pop(false);
                             },
-                            child: Text(S.current.ok)),
+                            child: Text(AppLocalizations.of(context)!.ok)),
                       ],
                     );
                   });
@@ -316,18 +316,18 @@ class _LoginPageState extends State<LoginPage>
               context: context,
               builder: (context) {
                 return AlertDialog(
-                  content: Text(S.current.unknownError),
+                  content: Text(AppLocalizations.of(context)!.unknownError),
                   actions: [
                     TextButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/login');
                         },
-                        child: Text(S.current.retry)),
+                        child: Text(AppLocalizations.of(context)!.retry)),
                     TextButton(
                         onPressed: () {
                           Navigator.of(context).pop(false);
                         },
-                        child: Text(S.current.ok)),
+                        child: Text(AppLocalizations.of(context)!.ok)),
                   ],
                 );
               });
@@ -336,25 +336,25 @@ class _LoginPageState extends State<LoginPage>
     } else {
       if (mounted) {
         setState(() {
-          _loginText = S.current.restart;
+          _loginText = AppLocalizations.of(context)!.restart;
         });
         showDialog(
             context: context,
             builder: (context) {
               return AlertDialog(
-                content: Text(S.current.permissionError(S.current.storagePerm)),
+                content: Text(AppLocalizations.of(context)!.permissionError(AppLocalizations.of(context)!.storagePerm)),
                 actions: [
                   TextButton(
                       onPressed: () async {
                         Navigator.of(context).pushNamed('/login');
                       },
-                      child: Text(S.current.retry)),
+                      child: Text(AppLocalizations.of(context)!.retry)),
                   TextButton(
                       onPressed: () {
                         Navigator.of(context).pop(false);
                         openAppSettings();
                       },
-                      child: Text(S.current.ok))
+                      child: Text(AppLocalizations.of(context)!.ok))
                 ],
               );
             });
@@ -390,7 +390,7 @@ class _LoginPageState extends State<LoginPage>
       String username, String password, BuildContext context) async {
     if (mounted) {
       setState(() {
-        _loginText = S.current.loggingIn;
+        _loginText = AppLocalizations.of(context)!.loggingIn;
       });
     }
     try {
@@ -429,35 +429,35 @@ class _LoginPageState extends State<LoginPage>
         // 验证错误
         if (mounted) {
           setState(() {
-            _errorMessage = S.current.emailOrName +
-                S.current.or +
-                S.current.password +
-                S.current.incorrect;
-            _loginText = S.current.login;
+            _errorMessage = AppLocalizations.of(context)!.emailOrName +
+                AppLocalizations.of(context)!.or +
+                AppLocalizations.of(context)!.password +
+                AppLocalizations.of(context)!.incorrect;
+            _loginText = AppLocalizations.of(context)!.login;
           });
         }
       } else {
         // 未知错误
         if (mounted) {
           setState(() {
-            _loginText = S.current.login;
+            _loginText = AppLocalizations.of(context)!.login;
           });
           await showDialog(
               context: context,
               builder: (context) {
                 return AlertDialog(
-                  content: Text(S.current.unknownError),
+                  content: Text(AppLocalizations.of(context)!.unknownError),
                   actions: [
                     TextButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/login');
                         },
-                        child: Text(S.current.retry)),
+                        child: Text(AppLocalizations.of(context)!.retry)),
                     TextButton(
                         onPressed: () {
                           Navigator.of(context).pop(false);
                         },
-                        child: Text(S.current.ok)),
+                        child: Text(AppLocalizations.of(context)!.ok)),
                   ],
                 );
               });
@@ -467,7 +467,7 @@ class _LoginPageState extends State<LoginPage>
       logger.e("login error $e");
       if (mounted) {
         setState(() {
-          _loginText = S.current.login;
+          _loginText = AppLocalizations.of(context)!.login;
         });
         if (e is TimeoutException) {
           if (!mounted) {
@@ -477,18 +477,18 @@ class _LoginPageState extends State<LoginPage>
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    content: Text(S.current.connectError),
+                    content: Text(AppLocalizations.of(context)!.connectError),
                     actions: [
                       TextButton(
                           onPressed: () {
                             Navigator.pushNamed(context, '/login');
                           },
-                          child: Text(S.current.retry)),
+                          child: Text(AppLocalizations.of(context)!.retry)),
                       TextButton(
                           onPressed: () {
                             Navigator.of(context).pop(false);
                           },
-                          child: Text(S.current.ok)),
+                          child: Text(AppLocalizations.of(context)!.ok)),
                     ],
                   );
                 });
@@ -499,18 +499,18 @@ class _LoginPageState extends State<LoginPage>
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    content: Text(S.current.unknownError),
+                    content: Text(AppLocalizations.of(context)!.unknownError),
                     actions: [
                       TextButton(
                           onPressed: () {
                             Navigator.pushNamed(context, '/login');
                           },
-                          child: Text(S.current.retry)),
+                          child: Text(AppLocalizations.of(context)!.retry)),
                       TextButton(
                           onPressed: () {
                             Navigator.of(context).pop(false);
                           },
-                          child: Text(S.current.ok)),
+                          child: Text(AppLocalizations.of(context)!.ok)),
                     ],
                   );
                 });
@@ -532,18 +532,18 @@ class _LoginPageState extends State<LoginPage>
           context: context,
           builder: (context) {
             return AlertDialog(
-              content: Text(S.current.unknownError),
+              content: Text(AppLocalizations.of(context)!.unknownError),
               actions: [
                 TextButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/login');
                     },
-                    child: Text(S.current.retry)),
+                    child: Text(AppLocalizations.of(context)!.retry)),
                 TextButton(
                     onPressed: () {
                       Navigator.of(context).pop(false);
                     },
-                    child: Text(S.current.ok)),
+                    child: Text(AppLocalizations.of(context)!.ok)),
               ],
             );
           });
@@ -577,7 +577,7 @@ class _LoginPageState extends State<LoginPage>
             context: context,
             builder: (context) {
               return AlertDialog(
-                content: Text(S.current.loginExpired),
+                content: Text(AppLocalizations.of(context)!.loginExpired),
                 actions: [
                   TextButton(
                       onPressed: () async {
@@ -587,12 +587,12 @@ class _LoginPageState extends State<LoginPage>
                         await storage.delete(key: 'date');
                         Navigator.of(context).pop(false);
                       },
-                      child: Text(S.current.relogin)),
+                      child: Text(AppLocalizations.of(context)!.relogin)),
                   TextButton(
                       onPressed: () {
                         Navigator.of(context).pop(false);
                       },
-                      child: Text(S.current.cancel)),
+                      child: Text(AppLocalizations.of(context)!.cancel)),
                 ],
               );
             });
@@ -625,14 +625,14 @@ class _LoginPageState extends State<LoginPage>
                     TextFormField(
                       controller: _emailController,
                       decoration: InputDecoration(
-                        labelText: S.current.emailOrName,
+                        labelText: AppLocalizations.of(context)!.emailOrName,
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
-                          return S.current.emptyemail;
+                          return AppLocalizations.of(context)!.emptyemail;
                         }
                         if (_errorMessage != '') {
                           return '';
@@ -646,14 +646,14 @@ class _LoginPageState extends State<LoginPage>
                     TextFormField(
                       controller: _passwordController,
                       decoration: InputDecoration(
-                        labelText: S.current.password,
+                        labelText: AppLocalizations.of(context)!.password,
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),
                       obscureText: true,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
-                          return S.current.emptypassword;
+                          return AppLocalizations.of(context)!.emptypassword;
                         }
                         if (_errorMessage != '') {
                           return _errorMessage;
@@ -676,7 +676,7 @@ class _LoginPageState extends State<LoginPage>
                               const Color.fromARGB(0, 0, 0, 0)),
                         ),
                         child: Text(
-                          S.current.register,
+                          AppLocalizations.of(context)!.register,
                           style: const TextStyle(fontSize: 14),
                         )),
 
@@ -685,7 +685,7 @@ class _LoginPageState extends State<LoginPage>
                         width: 150,
                         child: ElevatedButton(
                           onPressed: () {
-                            if (_loginText != S.current.loggingIn) {
+                            if (_loginText != AppLocalizations.of(context)!.loggingIn) {
                               FocusScopeNode currentFocus =
                                   FocusScope.of(context);
 
@@ -697,11 +697,11 @@ class _LoginPageState extends State<LoginPage>
                               _login();
                             }
                           },
-                          child: Text(S.current.login),
+                          child: Text(AppLocalizations.of(context)!.login),
                         )),
 
                     Text(
-                      S.current.or,
+                      AppLocalizations.of(context)!.or,
                       style: const TextStyle(fontSize: 12),
                     ),
 
@@ -716,7 +716,7 @@ class _LoginPageState extends State<LoginPage>
                         _playAndNavigate();
                       },
                       child: Text(
-                        S.current.guest,
+                        AppLocalizations.of(context)!.guest,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -739,7 +739,7 @@ class _LoginPageState extends State<LoginPage>
           maxWidth: min(500, MediaQuery.of(context).size.width - 20)),
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Text(
-          S.current.downloading(_latestVersion!),
+          AppLocalizations.of(context)!.downloading(_latestVersion!),
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -765,15 +765,15 @@ class _LoginPageState extends State<LoginPage>
         const SizedBox(height: 20),
         TextButton(
           child: Text(_startTime == null
-              ? "${S.current.cancel}ing..."
-              : S.current.cancel),
+              ? "${AppLocalizations.of(context)!.cancel}ing..."
+              : AppLocalizations.of(context)!.cancel),
           onPressed: () {
             if (_startTime != null) {
               setState(() {
                 _startTime = null;
                 _progress = 0;
                 _speed = 0.0;
-                _loginText = S.current.login;
+                _loginText = AppLocalizations.of(context)!.login;
               });
               _cancelToken.cancel();
             }
@@ -786,6 +786,24 @@ class _LoginPageState extends State<LoginPage>
   @override
   void initState() {
     super.initState();
+    _headphoneSceneController = AnimationController(
+      duration: const Duration(seconds: 2), // 动画持续时间
+      vsync: this,
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: Offset(0, 1), // 从屏幕底部进入
+      end: Offset(0, 0), // 最终到达原位置
+    ).animate(CurvedAnimation(
+      parent: _headphoneSceneController,
+      curve: Curves.easeOut, // 缓和效果
+    ));
+  }
+
+  @override
+  void didChangeDependencies(){
+    super.didChangeDependencies();
+    _loginText = AppLocalizations.of(context)!.login;
     _checkUpdate().then((needUpdate) {
       if (needUpdate && mounted) {
         showDialog(
@@ -797,7 +815,7 @@ class _LoginPageState extends State<LoginPage>
                   borderRadius: BorderRadius.circular(16.0), // 圆角样式
                 ),
                 title: Text(
-                  S.current.update(_currentVersion!, _latestVersion!),
+                  AppLocalizations.of(context)!.update(_currentVersion!, _latestVersion!),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 20.0,
@@ -814,7 +832,7 @@ class _LoginPageState extends State<LoginPage>
                         Text(
                           (_changelog ?? "") +
                               "\n" +
-                              S.current.releaseDate(_date!),
+                              AppLocalizations.of(context)!.releaseDate(_date!),
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 16.0,
@@ -844,7 +862,7 @@ class _LoginPageState extends State<LoginPage>
                             ),
                           ),
                           child: Text(
-                            S.current.cancel,
+                            AppLocalizations.of(context)!.cancel,
                             style: const TextStyle(
                               color: Colors.black87,
                               fontSize: 16.0,
@@ -855,7 +873,7 @@ class _LoginPageState extends State<LoginPage>
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            _loginText = S.current.downloading(_latestVersion!);
+                            _loginText = AppLocalizations.of(context)!.downloading(_latestVersion!);
                           });
                           // 执行更新逻辑
                           Navigator.of(context).pop();
@@ -870,7 +888,7 @@ class _LoginPageState extends State<LoginPage>
                           ),
                         ),
                         child: Text(
-                          S.current.dlUpdate,
+                          AppLocalizations.of(context)!.dlUpdate,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16.0,
@@ -885,24 +903,11 @@ class _LoginPageState extends State<LoginPage>
             });
       } else {
         setState(() {
-          _loginText = S.current.login;
+          _loginText = AppLocalizations.of(context)!.login;
         });
         loginUsingStorage();
       }
     });
-
-    _headphoneSceneController = AnimationController(
-      duration: const Duration(seconds: 2), // 动画持续时间
-      vsync: this,
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: Offset(0, 1), // 从屏幕底部进入
-      end: Offset(0, 0), // 最终到达原位置
-    ).animate(CurvedAnimation(
-      parent: _headphoneSceneController,
-      curve: Curves.easeOut, // 缓和效果
-    ));
   }
 
   @override
@@ -940,7 +945,7 @@ class _LoginPageState extends State<LoginPage>
                           color: Colors.white, size: 50),
                       const SizedBox(height: 10),
                       Text(
-                        S.current.wearHeadphone,
+                        AppLocalizations.of(context)!.wearHeadphone,
                         style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,

@@ -1,25 +1,29 @@
 import './quiz.dart';
-import 'package:rhythm_riddle/generated/l10n.dart';
+import '/generated/app_localizations.dart';
+import 'package:flutter/material.dart'; // Make sure to import this
 
 class Result {
   final QuizType quizType;
   final List<String> correctAnswers;
   final int musicId;
+  final String music;
   final int? albumId;
   final int? artistId;
   final String submission;
   final List<Map<String, String>>? options;
-  final int answerTime;
+  final int answerTime;// Add this field
 
-  Result(
-    {required this.quizType,
+  Result({
+    required this.quizType,
     required this.correctAnswers,
     required this.musicId,
+    required this.music,
     this.albumId,
     this.artistId,
     required this.submission,
     this.options,
-    required this.answerTime});
+    required this.answerTime,// Add this to constructor
+  });
 
   //toJson
   Map<String, dynamic> toJson() {
@@ -32,26 +36,26 @@ class Result {
       'submission': submission,
       'options': options,
       'answerTime': answerTime
+      // Note: We don't include context in JSON as it's not serializable
     };
   }
 
-  static final Map<int, String Function(Result)> _questionResolvers = {
-    0: (q) => S.current.chooseMusic,
-    1: (q) => S.current.chooseArtist,
-    2: (q) => S.current.chooseAlbum,
-    3: (q) => S.current.chooseGenre,
-    4: (q) => S.current.enterMusic,
-    5: (q) => S.current.enterArtist,
-    6: (q) => S.current.enterAlbum,
-    7: (q) => S.current.enterGenre
-  };
-  String getQuestion(){
-    final resolver = _questionResolvers[quizType.index];
-    if (resolver == null) {
-      return S.current.unknownError;
-    }else{
-      return resolver(this);
+  String getQuestion(BuildContext context) {
+    final questionTexts = [
+      AppLocalizations.of(context)!.chooseMusic,
+      AppLocalizations.of(context)!.chooseArtist,
+      AppLocalizations.of(context)!.chooseAlbum,
+      AppLocalizations.of(context)!.chooseGenre,
+      AppLocalizations.of(context)!.enterMusic,
+      AppLocalizations.of(context)!.enterArtist,
+      AppLocalizations.of(context)!.enterAlbum,
+      AppLocalizations.of(context)!.enterGenre,
+    ];
+    
+    if (quizType.index >= 0 && quizType.index < questionTexts.length) {
+      return questionTexts[quizType.index];
     }
+    return AppLocalizations.of(context)!.unknownError;
   }
 }
 

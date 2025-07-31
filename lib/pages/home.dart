@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import '../generated/l10n.dart';
+import '/generated/app_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -30,7 +30,7 @@ class _HomeState extends State<Home> {
       return AlertDialog(
           content: Text(title),
           actions: [
-              TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(S.current.ok)),
+              TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(AppLocalizations.of(context)!.ok)),
           ],
       );
     });
@@ -76,7 +76,7 @@ class _HomeState extends State<Home> {
         }
       }
     }catch (e){
-      showDialogFunction(S.current.connectError);
+      showDialogFunction(AppLocalizations.of(context)!.connectError);
       setState(() {
         _loadingTimeOut = true;
         _isLoading = false;
@@ -120,7 +120,7 @@ class _HomeState extends State<Home> {
                             const Icon(Icons.search, color: Colors.grey),
                             const SizedBox(width: 10),
                             Text(
-                              S.current.search,
+                              AppLocalizations.of(context)!.search,
                               style: const TextStyle(color: Colors.grey),
                             ),
                             if(Platform.isWindows || Platform.isLinux || Platform.isMacOS) ...[
@@ -149,7 +149,7 @@ class _HomeState extends State<Home> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(S.current.recm,
+                            Text(AppLocalizations.of(context)!.recm,
                                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                             const Text('更多 =>', style: TextStyle(color: Colors.blue)),
                           ],
@@ -167,7 +167,7 @@ class _HomeState extends State<Home> {
                                   }, 
                                   icon: const Icon(Icons.refresh),
                                 ),
-                                Text(S.current.retry),
+                                Text(AppLocalizations.of(context)!.retry),
                               ]
                             ),
                           ),
@@ -252,7 +252,7 @@ class _HomeState extends State<Home> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(S.current.hot,
+                            Text(AppLocalizations.of(context)!.hot,
                                 style: const TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.bold)),
                             const Text('更多 =>', style: TextStyle(color: Colors.blue)),
@@ -291,7 +291,7 @@ class _HomeState extends State<Home> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(S.current.sort,
+                            Text(AppLocalizations.of(context)!.sort,
                                 style: const TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.bold)),
                             const Text('更多 =>', style: TextStyle(color: Colors.blue)),
@@ -360,7 +360,7 @@ class _HomeState extends State<Home> {
                       leading: const Icon(Icons.person),
                       enabled: _isLogin,
                       title: Text(
-                        S.current.accountManage,
+                        AppLocalizations.of(context)!.accountManage,
                         style: const TextStyle(fontSize: 16),
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios_rounded),
@@ -379,7 +379,7 @@ class _HomeState extends State<Home> {
                     ListTile(
                       leading: const Icon(Icons.history),
                       title: Text(
-                        S.current.history,
+                        AppLocalizations.of(context)!.history,
                         style: const TextStyle(fontSize: 16),
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios_rounded),
@@ -398,7 +398,7 @@ class _HomeState extends State<Home> {
                     ListTile(
                       leading: const Icon(Icons.playlist_add_check),
                       title: Text(
-                        S.current.localPlaylists,
+                        AppLocalizations.of(context)!.localPlaylists,
                         style: const TextStyle(fontSize: 16),
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios_rounded), 
@@ -418,7 +418,7 @@ class _HomeState extends State<Home> {
                     ListTile(
                       leading: const Icon(Icons.settings),
                       title: Text(
-                        S.current.setting,
+                        AppLocalizations.of(context)!.setting,
                         style: const TextStyle(fontSize: 16),
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios_rounded),
@@ -461,17 +461,17 @@ class _HomeState extends State<Home> {
           NavigationDestination(
             selectedIcon: const Icon(Icons.sports_esports),
             icon: const Icon(Icons.sports_esports_outlined),
-            label: S.current.home,
+            label: AppLocalizations.of(context)!.home,
           ),
           NavigationDestination(
             selectedIcon: const Icon(Icons.workspace_premium),
             icon: const Icon(Icons.workspace_premium_outlined),
-            label: S.current.rank,
+            label: AppLocalizations.of(context)!.rank,
           ),
           NavigationDestination(
             selectedIcon: const Icon(Icons.account_box),
             icon: const Icon(Icons.account_box_outlined),
-            label: S.current.me,
+            label: AppLocalizations.of(context)!.me,
           ),
         ]
       ),
@@ -495,13 +495,13 @@ class _HomeState extends State<Home> {
   String _getAppBarTitle(){
     switch (_currentPageIndex) {
     case 0:
-      return S.current.home;
+      return AppLocalizations.of(context)!.home;
     case 1:
-      return S.current.rank;
+      return AppLocalizations.of(context)!.rank;
     case 2:
-      return S.current.me;
+      return AppLocalizations.of(context)!.me;
     default:
-      return S.current.home;
+      return AppLocalizations.of(context)!.home;
     }
   }
 }

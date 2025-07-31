@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../generated/l10n.dart';
+import '/generated/app_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:logger/logger.dart';
@@ -38,7 +38,7 @@ class _SearchState extends State<Search> {
           child: TextField(
             controller: _controller, // 关联控制器
             decoration: InputDecoration(
-              hintText: S.current.search,
+              hintText: AppLocalizations.of(context)!.search,
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               suffixIcon: TextButton(
                 onPressed: () {
@@ -82,10 +82,10 @@ class _SearchState extends State<Search> {
       if(e is TimeoutException && mounted){
         await showDialog(context: context, builder: (context){
           return AlertDialog(
-            content: Text(S.current.connectError),
+            content: Text(AppLocalizations.of(context)!.connectError),
             actions: [
-              TextButton(onPressed: () {Navigator.pushNamed(context, '/search');}, child: Text(S.current.retry)),
-              TextButton(onPressed: () {Navigator.pushNamed(context, '/home');}, child: Text(S.current.backToHome)),
+              TextButton(onPressed: () {Navigator.pushNamed(context, '/search');}, child: Text(AppLocalizations.of(context)!.retry)),
+              TextButton(onPressed: () {Navigator.pushNamed(context, '/home');}, child: Text(AppLocalizations.of(context)!.backToHome)),
             ],
           );
         });
@@ -93,10 +93,10 @@ class _SearchState extends State<Search> {
         if(mounted){
           await showDialog(context: context, builder: (context){
             return AlertDialog(
-              content: Text(S.current.unknownError),
+              content: Text(AppLocalizations.of(context)!.unknownError),
               actions: [
-                TextButton(onPressed: () {Navigator.pushNamed(context, '/search');}, child: Text(S.current.retry)),
-                TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(S.current.backToHome)),
+                TextButton(onPressed: () {Navigator.pushNamed(context, '/search');}, child: Text(AppLocalizations.of(context)!.retry)),
+                TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(AppLocalizations.of(context)!.backToHome)),
               ],
             );
           });

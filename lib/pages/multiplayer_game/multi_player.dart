@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/generated/l10n.dart';
+import '/generated/app_localizations.dart';
 import 'package:http/http.dart' as http;
 
 class MultiPlayer extends StatefulWidget {
@@ -40,7 +40,7 @@ class _MultiPlayerState extends State<MultiPlayer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("${S.current.multiPlayer}: $playlistTitle")),
+      appBar: AppBar(title: Text("${AppLocalizations.of(context)!.multiPlayer}: $playlistTitle")),
       body: Center(
         //输出歌单所有信息
         child: Column(

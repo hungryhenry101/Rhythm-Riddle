@@ -1,4 +1,5 @@
 {
+    "@@locale": "zh",
     "name": "这歌我熟",
     "login": "登录", "loggingIn": "登录中...",
     "or": "或", "register": "没有账号? 点此注册!",
@@ -30,6 +31,7 @@
     "gameSettings": "游戏设置",
 
     "songs": "歌曲", "played": "玩过", "likes": "赞", "downloaded": "已下载", "download": "下载",
+    "loginRequired": "请先登录",
     "bug": "游戏出现BUG了，请反馈给hungryhenry101@outlook.com",
     "singlePlayer": "单人模式", "multiPlayer": "多人模式（敬请期待）",
     "singlePlayerOptions": "单人模式选项", "multiPlayerOptions": "多人模式选项",

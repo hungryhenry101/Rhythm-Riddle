@@ -1,4 +1,5 @@
-import '../generated/l10n.dart';
+import '/generated/app_localizations.dart';
+import 'package:flutter/material.dart';
 
 enum QuizType {
   chooseMusic,
@@ -18,10 +19,10 @@ final List<QuizType> choosingTypes = [
   QuizType.chooseGenre
 ];
 
-List<Quiz> list2QuizList(List<dynamic> jsonList) {
+List<Quiz> list2QuizList(List<dynamic> jsonList, BuildContext context) {
   List<Quiz> quizList = [];
   for (var json in jsonList) {
-    quizList.add(Quiz.fromJson(json));
+    quizList.add(Quiz.fromJson(json, context));
   }
   return quizList;
 }
@@ -47,8 +48,8 @@ class Quiz {
   final List<int>? blanks;
   final String? tip;
 
-  Quiz(
-      {required this.quizType,
+  Quiz({
+      required this.quizType,
       required this.musicId,
       required this.music,
       this.artistId,
@@ -65,7 +66,7 @@ class Quiz {
       this.blanks,
       this.tip});
   
-  factory Quiz.fromJson(Map<String, dynamic> json) {
+  factory Quiz.fromJson(Map<String, dynamic> json, BuildContext context) {
     try {
       List<Map<String, String>>? options;
       if (json["options"]!= null) {
@@ -115,22 +116,21 @@ class Quiz {
     }
   }
 
-  static final Map<int, String Function(Quiz)> _questionResolvers = {
-    0: (q) => S.current.chooseMusic,
-    1: (q) => S.current.chooseArtist,
-    2: (q) => S.current.chooseAlbum,
-    3: (q) => S.current.chooseGenre,
-    4: (q) => S.current.enterMusic,
-    5: (q) => S.current.enterArtist,
-    6: (q) => S.current.enterAlbum,
-    7: (q) => S.current.enterGenre
-  };
-  String getQuestion(){
-    final resolver = _questionResolvers[quizType.index];
-    if (resolver == null) {
-      return S.current.unknownError;
-    }else{
-      return resolver(this);
+  String getQuestion(BuildContext context) {
+    final questionTexts = [
+      AppLocalizations.of(context)!.chooseMusic,
+      AppLocalizations.of(context)!.chooseArtist,
+      AppLocalizations.of(context)!.chooseAlbum,
+      AppLocalizations.of(context)!.chooseGenre,
+      AppLocalizations.of(context)!.enterMusic,
+      AppLocalizations.of(context)!.enterArtist,
+      AppLocalizations.of(context)!.enterAlbum,
+      AppLocalizations.of(context)!.enterGenre,
+    ];
+    
+    if (quizType.index >= 0 && quizType.index < questionTexts.length) {
+      return questionTexts[quizType.index];
     }
+    return AppLocalizations.of(context)!.unknownError;
   }
 }

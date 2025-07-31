@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '/generated/l10n.dart';
+import '/generated/app_localizations.dart';
 
 class SinglePlayer extends StatefulWidget {
   const SinglePlayer({super.key});
@@ -58,7 +58,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                   border: Border.all(color: Colors.black26),
                   borderRadius: BorderRadius.circular(10)),
               child: Text(
-                description ?? S.current.noDes,
+                description ?? AppLocalizations.of(context)!.noDes,
                 style: const TextStyle(fontSize: 14),
                 textAlign: TextAlign.center,
               ),
@@ -70,7 +70,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(
-              S.current.chooseDifficulty,
+              AppLocalizations.of(context)!.chooseDifficulty,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 30),
@@ -95,7 +95,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                   ),
                   child: Center(
                     child: Text(
-                      S.current.easy,
+                      AppLocalizations.of(context)!.easy,
                       style: TextStyle(
                         color: selectedDifficulty == 1
                             ? Colors.white
@@ -122,7 +122,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                   ),
                   child: Center(
                     child: Text(
-                      S.current.normal,
+                      AppLocalizations.of(context)!.normal,
                       style: TextStyle(
                         color: selectedDifficulty == 2
                             ? Colors.white
@@ -150,7 +150,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                   ),
                   child: Center(
                     child: Text(
-                      S.current.hard,
+                      AppLocalizations.of(context)!.hard,
                       style: TextStyle(
                         color: selectedDifficulty == 3
                             ? Colors.white
@@ -180,7 +180,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                   ),
                   child: Center(
                     child: Text(
-                      S.current.custom,
+                      AppLocalizations.of(context)!.custom,
                       style: TextStyle(
                         color: selectedDifficulty == 4
                             ? Colors.white
@@ -195,10 +195,10 @@ class _SinglePlayerState extends State<SinglePlayer> {
             if (selectedDifficulty != 4) ...[
               Text(
                 selectedDifficulty == 1
-                    ? S.current.easyInfo
+                    ? AppLocalizations.of(context)!.easyInfo
                     : selectedDifficulty == 2
-                        ? S.current.normalInfo
-                        : S.current.hardInfo,
+                        ? AppLocalizations.of(context)!.normalInfo
+                        : AppLocalizations.of(context)!.hardInfo,
                 style: const TextStyle(fontSize: 18),
                 softWrap: true,
               ),
@@ -212,7 +212,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                           "difficulty": selectedDifficulty
                         });
                   },
-                  child: Text(S.current.start))
+                  child: Text(AppLocalizations.of(context)!.start))
             ] else ...[
               //blahblah
             ],
@@ -263,7 +263,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
           const SizedBox(height: 15),
 
           // Lower row - Difficulty
-          Text(S.current.chooseDifficulty,
+          Text(AppLocalizations.of(context)!.chooseDifficulty,
               style:
                   const TextStyle(fontSize: 22, fontWeight: FontWeight.w500)),
           const SizedBox(height: 14),
@@ -287,7 +287,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                 ),
                 child: Center(
                   child: Text(
-                    S.current.easy,
+                    AppLocalizations.of(context)!.easy,
                     style: TextStyle(
                       color:
                           selectedDifficulty == 1 ? Colors.white : Colors.black,
@@ -313,7 +313,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                 ),
                 child: Center(
                   child: Text(
-                    S.current.normal,
+                    AppLocalizations.of(context)!.normal,
                     style: TextStyle(
                       color:
                           selectedDifficulty == 2 ? Colors.white : Colors.black,
@@ -339,7 +339,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                 ),
                 child: Center(
                   child: Text(
-                    S.current.hard,
+                    AppLocalizations.of(context)!.hard,
                     style: TextStyle(
                       color:
                           selectedDifficulty == 3 ? Colors.white : Colors.black,
@@ -366,7 +366,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                 ),
                 child: Center(
                   child: Text(
-                    S.current.custom,
+                    AppLocalizations.of(context)!.custom,
                     style: const TextStyle(
                       color: //selectedDifficulty == 3 ? Colors.white :
                           Colors.black,
@@ -380,10 +380,10 @@ class _SinglePlayerState extends State<SinglePlayer> {
           if (selectedDifficulty != 3) ...[
             Text(
               selectedDifficulty == 1
-                  ? S.current.easyInfo
+                  ? AppLocalizations.of(context)!.easyInfo
                   : selectedDifficulty == 2
-                      ? S.current.normalInfo
-                      : S.current.hardInfo,
+                      ? AppLocalizations.of(context)!.normalInfo
+                      : AppLocalizations.of(context)!.hardInfo,
               style: const TextStyle(fontSize: 18),
               softWrap: true,
             ),
@@ -396,7 +396,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                     "difficulty": selectedDifficulty
                   });
                 },
-                child: Text(S.current.start))
+                child: Text(AppLocalizations.of(context)!.start))
           ] else ...[
             //blahblah
           ],
@@ -424,7 +424,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text("${S.current.singlePlayerOptions}: $playlistTitle")),
+          title: Text("${AppLocalizations.of(context)!.singlePlayerOptions}: $playlistTitle")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: MediaQuery.of(context).size.width > 800

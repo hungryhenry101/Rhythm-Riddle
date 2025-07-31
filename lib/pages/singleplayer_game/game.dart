@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import '/generated/l10n.dart';
+import '/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
@@ -102,7 +102,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
               context: context,
               builder: (context) {
                 return AlertDialog(
-                  content: Text(S.current.connectError),
+                  content: Text(AppLocalizations.of(context)!.connectError),
                   actions: [
                     TextButton(
                         onPressed: () {
@@ -113,7 +113,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                           Navigator.of(context).pushNamed('/PlaylistInfo',
                               arguments: _playlistId);
                         },
-                        child: Text(S.current.back)),
+                        child: Text(AppLocalizations.of(context)!.back)),
                   ],
                 );
               });
@@ -125,7 +125,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
               context: context,
               builder: (context) {
                 return AlertDialog(
-                  content: Text(S.current.unknownError),
+                  content: Text(AppLocalizations.of(context)!.unknownError),
                   actions: [
                     TextButton(
                         onPressed: () {
@@ -136,7 +136,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                           Navigator.of(context).pushNamed('/PlaylistInfo',
                               arguments: _playlistId);
                         },
-                        child: Text(S.current.back)),
+                        child: Text(AppLocalizations.of(context)!.back)),
                   ],
                 );
               });
@@ -196,7 +196,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
       responseBody = response.body;
       if (response.statusCode == 200) {
         setState(() {
-          _quizzes = list2QuizList(jsonDecode(response.body));
+          _quizzes = list2QuizList(jsonDecode(response.body),context);
         });
       } else {
         print(response.body);
@@ -207,7 +207,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
             context: context,
             builder: (context) {
               return AlertDialog(
-                content: Text(S.current.connectError),
+                content: Text(AppLocalizations.of(context)!.connectError),
                 actions: [
                   TextButton(
                       onPressed: () {
@@ -216,7 +216,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                         Navigator.of(context)
                             .pushNamed('/PlaylistInfo', arguments: _playlistId);
                       },
-                      child: Text(S.current.back)),
+                      child: Text(AppLocalizations.of(context)!.back)),
                   TextButton(
                       onPressed: () {
                         Navigator.of(context)
@@ -227,7 +227,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                           difficulty
                         });
                       },
-                      child: Text(S.current.retry))
+                      child: Text(AppLocalizations.of(context)!.retry))
                 ],
               );
             });
@@ -238,7 +238,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
             context: context,
             builder: (context) {
               return AlertDialog(
-                content: Text(S.current.unknownError),
+                content: Text(AppLocalizations.of(context)!.unknownError),
                 actions: [
                   TextButton(
                       onPressed: () {
@@ -247,7 +247,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                         Navigator.of(context)
                             .pushNamed('/PlaylistInfo', arguments: _playlistId);
                       },
-                      child: Text(S.current.back))
+                      child: Text(AppLocalizations.of(context)!.back))
                 ],
               );
             });
@@ -269,6 +269,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                 quizType: _quizzes[_currentQuiz].quizType,
                 correctAnswers: _quizzes[_currentQuiz].getAnswer(),
                 musicId: _quizzes[_currentQuiz].musicId,
+                music: _quizzes[_currentQuiz].music,
                 artistId: _quizzes[_currentQuiz].artistId,
                 albumId: _quizzes[_currentQuiz].albumId,
                 submission: _submittedOption!,
@@ -349,7 +350,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
     String question = "";
     String musicInfo = "";
 
-    question = quiz.getQuestion();
+    question = quiz.getQuestion(context);
     musicInfo = quiz.music + " - " + quiz.artists.join(", ");
 
     return SizedBox(
@@ -517,6 +518,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                                   quizType: quiz.quizType,
                                   correctAnswers: answerList,
                                   musicId: quiz.musicId,
+                                  music: quiz.music,
                                   albumId: quiz.albumId,
                                   artistId: quiz.artistId,
                                   submission: _submittedOption!,
@@ -535,12 +537,12 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                     ),
                     const SizedBox(height: 10),
                     if (_submittedOption == null) ...[
-                      Text(S.current.tip),
+                      Text(AppLocalizations.of(context)!.tip),
                       Text(tip ?? "",
                           style:
                               const TextStyle(letterSpacing: 2, fontSize: 18))
                     ] else ...[
-                      Text(S.current.correctAnswer),
+                      Text(AppLocalizations.of(context)!.correctAnswer),
                       Text(answerList.join(", "),
                           style:
                               const TextStyle(letterSpacing: 2, fontSize: 18)),
@@ -597,6 +599,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                     quizType: quiz.quizType,
                     correctAnswers: answerList,
                     musicId: quiz.musicId,
+                    music: quiz.music,
                     artistId: quiz.artistId,
                     albumId: quiz.albumId,
                     submission: _submittedOption!,
@@ -619,21 +622,21 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                 Future.delayed(
                     const Duration(seconds: 1), () => _audioPlayer.play());
               },
-              child: Text(S.current.submit),
+              child: Text(AppLocalizations.of(context)!.submit),
             ),
           ] else ...[
             const SizedBox(height: 10),
             _submittedOption == "bruhtimeout"
                 ? const Text("时间到")
                 : answerList.any((item) => item.toLowerCase() == _submittedOption!.toLowerCase())
-                  ? Text(S.current.correct,
+                  ? Text(AppLocalizations.of(context)!.correct,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.green
                     )
                   )
-                  : Text(S.current.wrong,
+                  : Text(AppLocalizations.of(context)!.wrong,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -657,7 +660,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                       arguments: args);
                   logger.i(_resultList.map((e) => e.toJson()).toList());
                 },
-                child: Text(S.current.end),
+                child: Text(AppLocalizations.of(context)!.end),
               )
             ] else ...[
               //下一题
@@ -678,7 +681,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                     _startAudioCountdown();
                   });
                 },
-                child: Text(S.current.next),
+                child: Text(AppLocalizations.of(context)!.next),
               ),
             ],
             if (_submittedOption != null) ...[
@@ -779,7 +782,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
               const SizedBox(height: 14)
             ],
             Text(
-                "${S.current.difficulty}: ${_difficulty == 1 ? S.current.easy : _difficulty == 2 ? S.current.normal : _difficulty == 3 ? S.current.hard : S.current.custom}",
+                "${AppLocalizations.of(context)!.difficulty}: ${_difficulty == 1 ? AppLocalizations.of(context)!.easy : _difficulty == 2 ? AppLocalizations.of(context)!.normal : _difficulty == 3 ? AppLocalizations.of(context)!.hard : AppLocalizations.of(context)!.custom}",
                 style: const TextStyle(fontSize: 18),
                 softWrap: true),
           ],
@@ -842,7 +845,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                   const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           Text(
-              "${S.current.difficulty}: ${_difficulty == 1 ? S.current.easy : _difficulty == 2 ? S.current.normal : _difficulty == 3 ? S.current.hard : S.current.custom}",
+              "${AppLocalizations.of(context)!.difficulty}: ${_difficulty == 1 ? AppLocalizations.of(context)!.easy : _difficulty == 2 ? AppLocalizations.of(context)!.normal : _difficulty == 3 ? AppLocalizations.of(context)!.hard : AppLocalizations.of(context)!.custom}",
               style: const TextStyle(fontSize: 16),
               softWrap: true),
           const SizedBox(height: 20),
@@ -966,7 +969,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text("${S.current.singlePlayer}: $_playlistTitle"),
+        title: Text("${AppLocalizations.of(context)!.singlePlayer}: $_playlistTitle"),
       ),
       body: Padding(
           padding: const EdgeInsets.all(16.0),

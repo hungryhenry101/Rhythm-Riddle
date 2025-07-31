@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../generated/l10n.dart';
+import '/generated/app_localizations.dart';
 
 import 'package:settings_ui/settings_ui.dart';
 import '../utils/preferences.dart';
@@ -27,13 +27,13 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.current.setting),
+        title: Text(AppLocalizations.of(context)!.setting),
       ),
       body: SettingsList(
         sections: [
           //外观设置
           SettingsSection(
-            title: Text(S.current.appearance),
+            title: Text(AppLocalizations.of(context)!.appearance),
             tiles: <SettingsTile>[
               //_darkmode: 2 = follow system, 1 = dark mode, 0 = light mode
               //follow system
@@ -47,7 +47,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   Provider.of<ThemeProvider>(context, listen: false).themeMode = themeMode;
                 },
                 leading: const Icon(Icons.brightness_auto),
-                title: Text(S.current.followSystem),
+                title: Text(AppLocalizations.of(context)!.followSystem),
                 activeSwitchColor: Theme.of(context).colorScheme.primary
               ),
 
@@ -62,7 +62,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
                 initialValue: _darkMode == 1,
                 leading: const Icon(Icons.dark_mode),
-                title: Text(S.current.darkMode),
+                title: Text(AppLocalizations.of(context)!.darkMode),
                 activeSwitchColor: Theme.of(context).colorScheme.primary,
               ),
             ],
@@ -70,7 +70,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
           //游戏设置
           SettingsSection(
-            title: Text(S.current.gameSettings),
+            title: Text(AppLocalizations.of(context)!.gameSettings),
             tiles: <SettingsTile>[
               SettingsTile.switchTile(
                 initialValue: false, 
