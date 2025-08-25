@@ -8,29 +8,29 @@ A fun music guessing game that lets music enthusiasts test their knowledge throu
 
 </div>
 
-## 📝 Overview
+## Overview
 
-**Rhythm Riddle** is an engaging music guessing game where players identify songs, artists, albums, and genres by listening to short audio clips. Built with Flutter, it provides a seamless cross-platform experience on Android, Windows, and Linux.
+**Rhythm Riddle** is an engaging music guessing game where players identify songs, artists, albums, and genres by listening to short audio clips. Built with Flutter, it provides a seamless cross-platform experience on Android, IOS, Windows, and Linux.
 
 > **Note:** The project is under development and needs your [help and contributions](#contributing)!
 
 ## ✨ Features
 
 ### Completed ✅
-- **Cross-platform Support**: Runs on Android, Windows, Mac, and Linux
-- **Internationalization**: Supports both English and Chinese
-- **Login System**
+- **Cross-platform Support**: Runs on Android, IOS, Windows, Mac, and Linux (Self compile required)
+- **Internationalization**: Supports both English and Chinese using intl
+- **Login System** : Uses token to save login state 
 - **Home Page Playlist Display**
 - **Account Management**
 - **Playlist Info Page** (Responsive UI for both large and small devices)
 - **Single Player Mode** (Basic Features)
+- **Difficulty System**: Easy, Medium, Hard
 - **Search Page** (In Progress)
 
 ### In Development 🚧
 - **Music Library Expansion**: [Want to add songs and playlists?](#adding-songs)
 - **Player Community**: Create your own playlists
 - **Multiplayer Mode**: Compete with friends
-- **Difficulty System**: Easy, Medium, Hard
 - **Customization Options**:
   - Music playback duration
   - Playback position
@@ -50,12 +50,11 @@ A fun music guessing game that lets music enthusiasts test their knowledge throu
 
 <div align="center">
 
-![24.9.16-24.9.22](img_for_readme/24.9.16-24.9.22.png)
-![24.9.23-24.9.29](img_for_readme/24.9.23-24.9.29.png)
 ![24.9.30-24.10.6](img_for_readme/24.9.30-24.10.6.png)
-![24.10.07-24.10.13](img_for_readme/24.10.07-24.10.13.png)
-![24.10.14-24.10.20](img_for_readme/24.10.14-24.10.20.png)
 ![24.11.25-24.12.1](img_for_readme/24.11.25-24.12.1.png)
+![24.12.09-24.12.15](img_for_readme/24.12.09-24.12.15.png)
+![24.12.23-24.12.29](img_for_readme/24.12.23-24.12.29.png)
+![25.5.09-25.5.15](img_for_readme/25.5.09-25.5.15.png)
 
 </div>
 
@@ -83,7 +82,7 @@ This project is licensed under the [GNU General Public License v3.0](LICENSE).
 
 > **Note:** This software is for personal learning, research, or non-commercial use only. Commercial use is prohibited.
 
-## 📞 Contact
+## Contact
 
 - 📧 Email: [hungryhenry101@outlook.com](mailto:hungryhenry101@outlook.com)
 - 🎥 Bilibili: [HungryHenry](https://space.bilibili.com/672872726)
@@ -92,6 +91,7 @@ This project is licensed under the [GNU General Public License v3.0](LICENSE).
 
 - Spidy: A cup of iced Americano
 - Yueran: A cup of iced Americano
+- eeeCY: Server Support
 
 ---
 

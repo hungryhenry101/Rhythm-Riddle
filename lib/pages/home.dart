@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import '/generated/app_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:logger/logger.dart';
 import 'dart:convert';
 
 const storage = FlutterSecureStorage();
@@ -15,12 +17,10 @@ class Home extends StatefulWidget{
 }
 
 class _HomeState extends State<Home> {
+  Logger logger = Logger();
   int _currentPageIndex = 0;
   List<dynamic> _playlists = [];
-  String? _uid = '';
-  String? _username = '';
-  String? _password = '';
-  String? _mail = '';
+  String? _uid;
   bool _isLogin = false;
   bool _isLoading = true;
   bool _loadingTimeOut = false;
@@ -38,10 +38,8 @@ class _HomeState extends State<Home> {
 
   Future<void> getData() async {
     _uid = await storage.read(key:'uid');
-    _username = await storage.read(key:'username');
-    _password = await storage.read(key:'password');
-    _mail = await storage.read(key:'mail');
-    if(_uid != null && _username != null && _password != null && _mail != null && mounted){
+    final String? loggedIn = await storage.read(key:'logged-in');
+    if(_uid != null && loggedIn == 'true' && mounted){
       setState(() {
         _isLogin = true;
       });
@@ -51,16 +49,16 @@ class _HomeState extends State<Home> {
     _loadingTimeOut = false;
 
     try{
-      final response = await http.post(
-        Uri.parse('https://hungryhenry.cn/api/get_playlist.php'),
-        headers: <String, String>{
+      final response = await Dio().post(
+        'https://hungryhenry.cn/api/get_playlist.php',
+        options: Options(headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8'
-        }
+        })
       ).timeout(const Duration(seconds: 7));
 
       if (response.statusCode == 200 && mounted) {
         setState((){
-          _playlists = jsonDecode(response.body)['data'];
+          _playlists = response.data['data'];
           if(_playlists.length > 5){
             _playlists = _playlists.sublist(0, 5);
           }
@@ -72,7 +70,7 @@ class _HomeState extends State<Home> {
           setState((){
             _playlists = [{"id": 0, "title": "error"}];
           });
-          print(response.body);
+          logger.i(response.data);
         }
       }
     }catch (e){
@@ -85,12 +83,48 @@ class _HomeState extends State<Home> {
   }
   
   Future<void> logout(BuildContext context) async {
-    await storage.delete(key: 'username');
-    await storage.delete(key: 'password');
-    await storage.delete(key: 'mail');
-    await storage.delete(key: 'uid');
-    if(!context.mounted) return;
-    Navigator.pushNamed(context, '/login');
+    final token = await storage.read(key: 'token');
+    try{
+      Response response = await Dio().post(
+        'https://hungryhenry.cn/api/logout.php',
+        options: Options(headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token}'
+        }),
+        data: jsonEncode({
+          'uid': _uid,
+        })
+      );
+      if(response.statusCode == 200){
+        await storage.delete(key: 'token');
+        await storage.delete(key: 'uid');
+        if(!context.mounted) return;
+        Navigator.pushNamed(context, '/login');
+      }else{
+        throw Exception('logout failed');
+      }
+    }catch (e){
+      if(e is TimeoutException){
+        showDialogFunction(AppLocalizations.of(context)!.connectError);
+      } else if(e is DioException){
+        if(e.response != null){
+          logger.e('Dio error!');
+          logger.e('STATUS: ${e.response?.statusCode}');
+          logger.e('DATA: ${e.response?.data}');
+          logger.e('HEADERS: ${e.response?.headers}');
+          showDialogFunction(AppLocalizations.of(context)!.unknownError);
+        }else{
+          // Something happened in setting up or sending the request that triggered an Error
+          logger.e('Error sending request!');
+          logger.e(e.message);
+          showDialogFunction(AppLocalizations.of(context)!.connectError);
+        }
+      }
+      await storage.delete(key: 'token');
+      await storage.delete(key: 'uid');
+      if(!context.mounted) return;
+      Navigator.pushNamed(context, '/login');
+    }
   }
 
   Widget _buildHome(){
@@ -424,6 +458,25 @@ class _HomeState extends State<Home> {
                       trailing: const Icon(Icons.arrow_forward_ios_rounded),
                       onTap: (){
                         Navigator.of(context).pushNamed('/settings');
+                      },
+                    ),
+
+                    //logout button
+                    const Divider(
+                      height: 1,
+                      thickness: 1, 
+                      indent: 16,
+                      endIndent: 16,
+                    ), 
+                    ListTile(
+                      leading: const Icon(Icons.logout),
+                      enabled: _isLogin,
+                      title: Text(
+                        AppLocalizations.of(context)!.logout,
+                        style: const TextStyle(fontSize: 16, color: Colors.red),
+                      ),
+                      onTap: (){
+                        logout(context);
                       },
                     ),
                   ]

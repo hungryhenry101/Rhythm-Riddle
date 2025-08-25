@@ -20,7 +20,7 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
   //用户信息
   static const storage = FlutterSecureStorage();
   String? _uid;
-  String? _password;
+  String? _token;
 
   //传入参数
   List<Result> _resultList = [];
@@ -53,7 +53,7 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
         },
         body: jsonEncode({
           'player_id': _uid,
-          'password': _password,
+          'token': _token,
           'playlist_id': _playlistId,
           'score': _score,
           'quiz_count': _quizCount,
@@ -106,7 +106,7 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
   }
 
   Future<void> _like () async {
-    if(_password == null || _uid == null){
+    if(_token == null || _uid == null){
       showDialog(context: context, builder: (context) {
         return AlertDialog(
           content: Text(AppLocalizations.of(context)!.loginRequired),
@@ -132,7 +132,7 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
           },
           body: jsonEncode({
             'player_id': _uid,
-            'password': _password,
+            'token': _token,
             'playlist_id': _playlistId,
             'action': 'unlike',
           })
@@ -160,7 +160,7 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
           },
           body: jsonEncode({
             'player_id': _uid,
-            'password': _password,
+            'token': _token,
             'playlist_id': _playlistId,
             'action': 'like',
           })
@@ -225,7 +225,7 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.microtask(() async {
         _uid = await storage.read(key: 'uid');
-        _password = await storage.read(key: 'password');
+        _token = await storage.read(key: 'token');
         if(mounted){
           final args = ModalRoute.of(context)?.settings.arguments as Map?;
           if (args != null) {
@@ -242,7 +242,7 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
             _computeCorrectCount();
             _score = (_correctCount / _quizCount! * 10).round();
 
-            if(_uid != null && _password != null){
+            if(_uid != null && _token != null){
               _postResult(); //上传结果
             }else{
               logger.i("未登录，无法上传结果");

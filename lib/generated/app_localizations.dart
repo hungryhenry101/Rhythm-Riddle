@@ -116,6 +116,18 @@ abstract class AppLocalizations {
   /// **'Loggin In...'**
   String get loggingIn;
 
+  /// No description provided for @rememberMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember me in 7 days'**
+  String get rememberMe;
+
+  /// No description provided for @loginSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Login Success'**
+  String get loginSuccess;
+
   /// No description provided for @or.
   ///
   /// In en, this message translates to:
@@ -133,6 +145,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'offline mode'**
   String get guest;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logout;
 
   /// No description provided for @password.
   ///
@@ -167,14 +185,20 @@ abstract class AppLocalizations {
   /// No description provided for @unknownError.
   ///
   /// In en, this message translates to:
-  /// **'Cannot connect to server. Pls contact hungryhenry101@outlook.com'**
+  /// **'Unknown error, please contact hungryhenry101@outlook.com'**
   String get unknownError;
 
   /// No description provided for @loginExpired.
   ///
   /// In en, this message translates to:
-  /// **'login info expired, pls login again'**
+  /// **'Login session expired, please login again'**
   String get loginExpired;
+
+  /// No description provided for @loginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed, please try again'**
+  String get loginFailed;
 
   /// No description provided for @connectError.
   ///

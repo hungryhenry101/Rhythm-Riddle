@@ -18,6 +18,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get loggingIn => '登录中...';
 
   @override
+  String get rememberMe => '7天内自动登录';
+
+  @override
+  String get loginSuccess => '登录成功';
+
+  @override
   String get or => '或';
 
   @override
@@ -25,6 +31,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get guest => '免登录进入';
+
+  @override
+  String get logout => '退出登录';
 
   @override
   String get password => '密码';
@@ -42,10 +51,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get emptypassword => '请输入密码';
 
   @override
-  String get unknownError => '软件/服务器问题，请重试或联系hungryhenry101@outlook.com';
+  String get unknownError => '未知错误，请重试或联系hungryhenry101@outlook.com';
 
   @override
   String get loginExpired => '登录已过期，请重新登录';
+
+  @override
+  String get loginFailed => '登录失败，请重试';
 
   @override
   String get connectError => '无法连接至服务器，请稍后再试或使用本地歌单游玩';

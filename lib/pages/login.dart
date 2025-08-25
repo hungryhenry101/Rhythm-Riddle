@@ -5,8 +5,6 @@ import 'dart:math';
 import '/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
-import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
@@ -27,10 +25,12 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
+  bool _initialized = false;
   final storage = const FlutterSecureStorage();
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _rememberMe = true;
   String _errorMessage = '';
   String _loginText = "";
   Logger logger = Logger();
@@ -54,31 +54,9 @@ class _LoginPageState extends State<LoginPage>
 
   Future<bool> _checkUpdate() async {
     try {
-      _loginText = AppLocalizations.of(context)!.checkingUpdate;
-      Response res = await Dio()
-          .get('https://hungryhenry.cn/rhythm_riddle/versions.json')
-          .catchError((e) {
-        logger.e("version check error: $e");
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.unknownError),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/login');
-                      },
-                      child: Text(AppLocalizations.of(context)!.retry)),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(false);
-                      },
-                      child: Text(AppLocalizations.of(context)!.ok)),
-                ],
-              );
-            });
-      });
+      Response res = await Dio().get(
+        'https://hungryhenry.cn/rhythm_riddle/versions.json'
+      );
       if (res.statusCode == 200) {
         Map data = res.data;
         _latestVersion = data['latest']['version'];
@@ -212,8 +190,8 @@ class _LoginPageState extends State<LoginPage>
                           TextButton(
                               onPressed: () {
                                 _launchInBrowser(Uri(
-                                    scheme: "http",
-                                    host: "192.168.0.100",
+                                    scheme: "https",
+                                    host: "hungryhenry.cn",
                                     path: "/rhythm_riddle/"));
                               },
                               child: Text(AppLocalizations.of(context)!.installManually))
@@ -386,137 +364,150 @@ class _LoginPageState extends State<LoginPage>
     }
   }
 
-  Future<void> login(
-      String username, String password, BuildContext context) async {
-    if (mounted) {
-      setState(() {
-        _loginText = AppLocalizations.of(context)!.loggingIn;
-      });
-    }
+  Future<void> _login(String username, String password, bool remember,BuildContext context) async {
+    setState(() {
+      _errorMessage = "";
+    });
+    _formKey.currentState?.validate();
+    logger.i("_login with username: $username, remember: $remember");
+    if (_formKey.currentState?.validate() != true 
+        || username.isEmpty 
+        || password.isEmpty 
+        || !mounted){
+      return;
+    } 
+    setState(() {
+      _loginText = AppLocalizations.of(context)!.loggingIn;
+    });
     try {
-      final response = await http
-          .post(Uri.parse('https://hungryhenry.cn/api/login.php'),
-              headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
-              },
-              body: jsonEncode(<String, String>{
-                'username': username,
-                'password': password,
-              }))
-          .timeout(const Duration(seconds: 7));
+      final response = await Dio().post(
+        'https://hungryhenry.cn/api/login.php',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
+        data: jsonEncode({
+          'username': username,
+          'password': password,
+          'remember': remember ? '1' : '0',
+        })).timeout(const Duration(seconds: 12));
 
-      if (!mounted) return;
+      if (!mounted){
+        _loginText = AppLocalizations.of(context)!.login;
+        return;
+      }
 
       if (response.statusCode == 200) {
         // LET'S GOOOOOO
+        setState(() {
+          _loginText = AppLocalizations.of(context)!.loginSuccess;
+        });
+        await storage.write(key: 'logged-in', value: "true");
         await storage.write(
             key: 'uid',
-            value: jsonDecode(response.body)['data']['uid'].toString());
-        await storage.write(
-            key: 'password',
-            value: jsonDecode(response.body)['data']['password']);
+            value: response.data['data']['uid'].toString());
         await storage.write(
             key: 'username',
-            value: jsonDecode(response.body)['data']['username']);
+            value: response.data['data']['username']);
         await storage.write(
-            key: 'mail', value: jsonDecode(response.body)['data']['mail']);
+          key: 'token',
+          value: response.data['data']['token'],
+        );
 
-        DateTime now = DateTime.now();
-        String formattedDate = DateFormat('yyyy-MM-dd').format(now);
-        await storage.write(key: 'date', value: formattedDate);
+        logger.i("navigating");
         _playAndNavigate();
-      } else if (response.statusCode == 401) {
-        // 验证错误
-        if (mounted) {
-          setState(() {
-            _errorMessage = AppLocalizations.of(context)!.emailOrName +
-                AppLocalizations.of(context)!.or +
-                AppLocalizations.of(context)!.password +
-                AppLocalizations.of(context)!.incorrect;
-            _loginText = AppLocalizations.of(context)!.login;
-          });
-        }
       } else {
+        logger.e("login error: ${response.statusCode} ${response.data}");
         // 未知错误
         if (mounted) {
           setState(() {
             _loginText = AppLocalizations.of(context)!.login;
           });
           await showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  content: Text(AppLocalizations.of(context)!.unknownError),
-                  actions: [
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/login');
-                        },
-                        child: Text(AppLocalizations.of(context)!.retry)),
-                    TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(false);
-                        },
-                        child: Text(AppLocalizations.of(context)!.ok)),
-                  ],
-                );
-              });
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Text(AppLocalizations.of(context)!.unknownError),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/login');
+                      },
+                      child: Text(AppLocalizations.of(context)!.retry)),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                      child: Text(AppLocalizations.of(context)!.ok)),
+                ],
+              );
+            }
+          );
         }
       }
     } catch (e) {
-      logger.e("login error $e");
-      if (mounted) {
-        setState(() {
-          _loginText = AppLocalizations.of(context)!.login;
-        });
-        if (e is TimeoutException) {
-          if (!mounted) {
-            logger.e("login timeout");
-          } else {
-            await showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    content: Text(AppLocalizations.of(context)!.connectError),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/login');
-                          },
-                          child: Text(AppLocalizations.of(context)!.retry)),
-                      TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(false);
-                          },
-                          child: Text(AppLocalizations.of(context)!.ok)),
-                    ],
-                  );
-                });
-          }
+      _loginText = AppLocalizations.of(context)!.login;
+      if(mounted) setState(() {});
+      if (e is TimeoutException) {
+        if (!mounted) {
+          logger.e("login timeout");
+          return;
         } else {
-          if (mounted) {
-            await showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    content: Text(AppLocalizations.of(context)!.unknownError),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/login');
-                          },
-                          child: Text(AppLocalizations.of(context)!.retry)),
-                      TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(false);
-                          },
-                          child: Text(AppLocalizations.of(context)!.ok)),
-                    ],
-                  );
-                });
-          } else {
-            logger.e("login error: $e");
-          }
+          await showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Text(AppLocalizations.of(context)!.connectError),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/login');
+                      },
+                      child: Text(AppLocalizations.of(context)!.retry)),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                      child: Text(AppLocalizations.of(context)!.ok)),
+                ],
+              );
+            }
+          );
+        }
+      } else if(e is DioException){
+        logger.e("http status: ${e.response?.statusCode}, data:${e.response?.data}");
+        if (e.response!.statusCode == 401) {
+          logger.i("auth failed, changing validation message");
+          setState(() {
+            _errorMessage = AppLocalizations.of(context)!.emailOrName +
+              AppLocalizations.of(context)!.or +
+              AppLocalizations.of(context)!.password +
+              AppLocalizations.of(context)!.incorrect;
+          });
+          _formKey.currentState?.validate();
+        }else{
+          logger.e("login error: $e");
+          await showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Text(AppLocalizations.of(context)!.unknownError),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/login');
+                    },
+                    child: Text(AppLocalizations.of(context)!.retry)),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(false);
+                    },
+                    child: Text(AppLocalizations.of(context)!.ok)),
+                ],
+              );
+            }
+          );
         }
       }
     }
@@ -550,52 +541,165 @@ class _LoginPageState extends State<LoginPage>
     }
   }
 
-  void _login() {
-    if (_formKey.currentState?.validate() ?? false) {
-      final String username = _emailController.text;
-      final String password = _passwordController.text;
-
-      if (username.isNotEmpty && password.isNotEmpty) {
-        login(username, password, context);
-      }
-    }
-  }
-
-  Future<void> loginUsingStorage() async {
-    String? username = await storage.read(key: 'username');
-    String? password = await storage.read(key: 'password');
-    String? date = await storage.read(key: 'date');
-    DateTime now = DateTime.now();
-    if (date != null && mounted) {
-      //如果storage中的日期在现在的7天前
-      if (now.difference(DateTime.parse(date)).inDays < 7) {
-        if (username != null && password != null) {
-          login(username, password, context);
-        }
-      } else {
-        await showDialog(
+  Future<void> loginUsingToken() async {
+    String? userId = await storage.read(key: 'uid');
+    String? token = await storage.read(key: 'token');
+    logger.i("userId: $userId, token: $token");
+    if(token == null || userId == null) return;
+    if (mounted) {
+      setState(() {
+        _loginText = AppLocalizations.of(context)!.loggingIn;
+      });
+      try{
+        final response = await Dio().post(
+          'https://hungryhenry.cn/api/refresh-token.php',
+          options: Options(headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          }),
+          data: {'user_id': userId},
+        );
+        if(response.statusCode == 200){
+          logger.i(response.data.runtimeType);
+          await storage.write(key: 'logged-in', value: "true");
+          await storage.write(key: 'token', value: response.data['data']['token']);
+          setState(() {
+            _loginText = AppLocalizations.of(context)!.loginSuccess;
+          });
+          _playAndNavigate();
+        }else{
+          if(!mounted) return;
+          setState(() {
+            _loginText = AppLocalizations.of(context)!.login;
+          });
+          await showDialog(
             context: context,
             builder: (context) {
               return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.loginExpired),
+                content: Text(AppLocalizations.of(context)!.unknownError),
                 actions: [
                   TextButton(
-                      onPressed: () async {
-                        _emailController.text = username!;
-                        await storage.delete(key: 'username');
-                        await storage.delete(key: 'password');
-                        await storage.delete(key: 'date');
-                        Navigator.of(context).pop(false);
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/login');
                       },
-                      child: Text(AppLocalizations.of(context)!.relogin)),
+                      child: Text(AppLocalizations.of(context)!.retry)),
                   TextButton(
                       onPressed: () {
                         Navigator.of(context).pop(false);
                       },
-                      child: Text(AppLocalizations.of(context)!.cancel)),
+                      child: Text(AppLocalizations.of(context)!.ok)),
                 ],
               );
-            });
+            }
+          );
+        }
+      }catch(e){
+        _loginText = AppLocalizations.of(context)!.login;
+        if(mounted) setState(() {});
+        if(e is TimeoutException){
+          if(!mounted) return;
+          await showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Text(AppLocalizations.of(context)!.connectError),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/login');
+                      },
+                      child: Text(AppLocalizations.of(context)!.retry)),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                      child: Text(AppLocalizations.of(context)!.ok)),
+                ],
+              );
+            }
+          );
+        }else if(e is DioException){
+          if(e.response == null){
+            logger.e("login error with token: $e");
+            return;
+          }
+          if(e.response!.data["message"] == "Token expired"){
+            await storage.delete(key: 'token');
+            final String? username = await storage.read(key: 'username');
+            if(!mounted) return;
+            await showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  content: Text(AppLocalizations.of(context)!.loginExpired),
+                  actions: [
+                    TextButton(
+                        onPressed: () async {
+                          _emailController.text = username ?? '';
+                          Navigator.of(context).pop(false);
+                        },
+                        child: Text(AppLocalizations.of(context)!.relogin)),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        },
+                        child: Text(AppLocalizations.of(context)!.cancel)),
+                  ],
+                );
+              }
+            );
+          }else if(e.response!.statusCode == 401){
+            await storage.delete(key: 'uid');
+            await storage.delete(key: 'token');
+            if(!mounted) return;
+            await showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  content: Text(AppLocalizations.of(context)!.loginFailed),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/login');
+                        },
+                        child: Text(AppLocalizations.of(context)!.retry)),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        },
+                        child: Text(AppLocalizations.of(context)!.ok)),
+                  ],
+                );
+              }
+            );
+          }else{
+            logger.e("login error with token: ${e.response?.data}");
+          }
+        }else{
+          logger.e("login error: $e");
+          if(mounted){
+            await showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  content: Text(AppLocalizations.of(context)!.unknownError),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/login');
+                        },
+                        child: Text(AppLocalizations.of(context)!.retry)),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        },
+                        child: Text(AppLocalizations.of(context)!.ok)),
+                  ],
+                );
+              }
+            );
+          }
+        }
       }
     }
   }
@@ -634,8 +738,8 @@ class _LoginPageState extends State<LoginPage>
                         if (value?.isEmpty ?? true) {
                           return AppLocalizations.of(context)!.emptyemail;
                         }
-                        if (_errorMessage != '') {
-                          return '';
+                        if (_errorMessage.isNotEmpty) {
+                          return _errorMessage;
                         }
                         return null;
                       },
@@ -655,7 +759,7 @@ class _LoginPageState extends State<LoginPage>
                         if (value?.isEmpty ?? true) {
                           return AppLocalizations.of(context)!.emptypassword;
                         }
-                        if (_errorMessage != '') {
+                        if (_errorMessage.isNotEmpty) {
                           return _errorMessage;
                         }
                         return null;
@@ -663,13 +767,31 @@ class _LoginPageState extends State<LoginPage>
                     ),
                     const SizedBox(height: 10),
 
-                    //register
+                    // Remember me checkbox
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: _rememberMe,
+                          onChanged: (value) {
+                            setState(() {
+                              _rememberMe = value ?? false;
+                            });
+                          },
+                        ),
+                        Text(
+                          AppLocalizations.of(context)!.rememberMe,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
+
+                    //register button
                     TextButton(
                         onPressed: () => setState(() {
                               _launchInBrowser(Uri(
-                                  scheme: 'http',
-                                  host: '192.168.0.100',
-                                  path: 'blog/admin'));
+                                  scheme: 'https',
+                                  host: 'blog.hungryhenry.cn',
+                                  path: '/admin/'));
                             }),
                         style: ButtonStyle(
                           backgroundColor: WidgetStateProperty.all<Color>(
@@ -682,23 +804,30 @@ class _LoginPageState extends State<LoginPage>
 
                     // 登录按钮
                     SizedBox(
-                        width: 150,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (_loginText != AppLocalizations.of(context)!.loggingIn) {
-                              FocusScopeNode currentFocus =
-                                  FocusScope.of(context);
+                      width: 150,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_loginText != AppLocalizations.of(context)!.loggingIn) {
+                            FocusScopeNode currentFocus =
+                                FocusScope.of(context);
 
-                              /// 键盘是否回收
-                              if (!currentFocus.hasPrimaryFocus &&
-                                  currentFocus.focusedChild != null) {
-                                FocusManager.instance.primaryFocus!.unfocus();
-                              }
-                              _login();
+                            /// 键盘是否回收
+                            if (!currentFocus.hasPrimaryFocus &&
+                                currentFocus.focusedChild != null) {
+                              FocusManager.instance.primaryFocus!.unfocus();
                             }
-                          },
-                          child: Text(AppLocalizations.of(context)!.login),
-                        )),
+
+                            _login(
+                              _emailController.text, 
+                              _passwordController.text, 
+                              _rememberMe,
+                              context
+                            );
+                          }
+                        },
+                        child: Text(AppLocalizations.of(context)!.login),
+                      )
+                    ),
 
                     Text(
                       AppLocalizations.of(context)!.or,
@@ -803,111 +932,141 @@ class _LoginPageState extends State<LoginPage>
   @override
   void didChangeDependencies(){
     super.didChangeDependencies();
-    _loginText = AppLocalizations.of(context)!.login;
-    _checkUpdate().then((needUpdate) {
-      if (needUpdate && mounted) {
-        showDialog(
-            context: context,
-            barrierDismissible: false, // 禁止点击对话框外部关闭
-            builder: (BuildContext context) {
-              return AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0), // 圆角样式
-                ),
-                title: Text(
-                  AppLocalizations.of(context)!.update(_currentVersion!, _latestVersion!),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                content: ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 300),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Text(
-                          (_changelog ?? "") +
-                              "\n" +
-                              AppLocalizations.of(context)!.releaseDate(_date!),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ],
+    if(!_initialized){
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        storage.write(key: 'logged-in', value: "false");
+        setState(() {
+          _loginText = AppLocalizations.of(context)!.checkingUpdate;
+          _initialized = true;
+        });
+        _checkUpdate().then((needUpdate) {
+          if (needUpdate && mounted) {
+            showDialog(
+                context: context,
+                barrierDismissible: false, // 禁止点击对话框外部关闭
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0), // 圆角样式
                     ),
-                  ),
-                ),
-                actions: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      if (!_force) ...[
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(); // 关闭对话框
-                            loginUsingStorage();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey[400],
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
+                    title: Text(
+                      AppLocalizations.of(context)!.update(_currentVersion!, _latestVersion!),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    content: ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 300),
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              (_changelog ?? "") +
+                                  "\n" +
+                                  AppLocalizations.of(context)!.releaseDate(_date!),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 16.0,
+                                color: Colors.black54,
+                              ),
                             ),
-                          ),
-                          child: Text(
-                            AppLocalizations.of(context)!.cancel,
-                            style: const TextStyle(
-                              color: Colors.black87,
-                              fontSize: 16.0,
-                            ),
-                          ),
-                        )
-                      ],
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _loginText = AppLocalizations.of(context)!.downloading(_latestVersion!);
-                          });
-                          // 执行更新逻辑
-                          Navigator.of(context).pop();
-                          _downloadUpdate();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue, // 突出显示立即更新按钮
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 24, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        child: Text(
-                          AppLocalizations.of(context)!.dlUpdate,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          ],
                         ),
                       ),
+                    ),
+                    actions: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          if (!_force) ...[
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // 关闭对话框
+                                loginUsingToken();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey[400],
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                              ),
+                              child: Text(
+                                AppLocalizations.of(context)!.cancel,
+                                style: const TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                            )
+                          ],
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _loginText = AppLocalizations.of(context)!.downloading(_latestVersion!);
+                              });
+                              // 执行更新逻辑
+                              Navigator.of(context).pop();
+                              _downloadUpdate();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue, // 突出显示立即更新按钮
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                            child: Text(
+                              AppLocalizations.of(context)!.dlUpdate,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
-                  ),
-                ],
-              );
+                  );
+                });
+          } else if (!needUpdate && mounted) {
+            setState(() {
+              _loginText = AppLocalizations.of(context)!.login;
             });
-      } else {
-        setState(() {
-          _loginText = AppLocalizations.of(context)!.login;
+            loginUsingToken();
+          }
+        }).catchError((e) {
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  content: Text(AppLocalizations.of(context)!.unknownError),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/login');
+                        },
+                        child: Text(AppLocalizations.of(context)!.retry)),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        },
+                        child: Text(AppLocalizations.of(context)!.ok)),
+                  ],
+                );
+              });
+          }
         });
-        loginUsingStorage();
-      }
-    });
+      });
+    }
   }
 
   @override

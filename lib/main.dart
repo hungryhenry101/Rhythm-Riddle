@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import '/generated/app_localizations.dart';
-import 'package:window_manager/window_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:clarity_flutter/clarity_flutter.dart';
 
@@ -29,15 +28,6 @@ import 'pages/test.dart';
 
 Future<void> main() async{  
   WidgetsFlutterBinding.ensureInitialized();
-  if(Platform.isWindows || Platform.isMacOS || Platform.isLinux){
-    WindowOptions windowOptions = const WindowOptions(
-      minimumSize: Size(500, 500),
-    );
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-    });
-  }
   
   final themeProvider = ThemeProvider();
   await themeProvider.init();

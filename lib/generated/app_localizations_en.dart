@@ -18,6 +18,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loggingIn => 'Loggin In...';
 
   @override
+  String get rememberMe => 'Remember me in 7 days';
+
+  @override
+  String get loginSuccess => 'Login Success';
+
+  @override
   String get or => 'or';
 
   @override
@@ -25,6 +31,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guest => 'offline mode';
+
+  @override
+  String get logout => 'Logout';
 
   @override
   String get password => 'Password';
@@ -43,10 +52,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unknownError =>
-      'Cannot connect to server. Pls contact hungryhenry101@outlook.com';
+      'Unknown error, please contact hungryhenry101@outlook.com';
 
   @override
-  String get loginExpired => 'login info expired, pls login again';
+  String get loginExpired => 'Login session expired, please login again';
+
+  @override
+  String get loginFailed => 'Login failed, please try again';
 
   @override
   String get connectError =>
