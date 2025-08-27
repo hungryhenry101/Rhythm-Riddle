@@ -9,6 +9,7 @@ import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import '/utils/error_handler.dart';
 
 class PlaylistInfo extends StatefulWidget {
   @override
@@ -91,18 +92,8 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
           downloadText = AppLocalizations.of(context)!.downloaded;
         });
       }catch(e){
-        if(e is TimeoutException){
-          await showDialog(context: context, builder: (context){
-            return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.connectError),
-                actions: [
-                  TextButton(onPressed: () { Navigator.of(context).pop();}, child: Text("OK"))
-                ],
-            );
-          });
-        }else{
-          print(e);
-        }
+        if(!mounted) return;
+        ErrorHandler(context).handle(e, HandleTypes.other);
       }
     }
   }
@@ -133,66 +124,19 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
           musicCount = response.data['data']['music_count'];
           isLoading = false;
         });
-      }else if(response.statusCode == 404 && mounted){
-        await showDialog(context: context, builder: (context){
-          return AlertDialog(
-              content: Text(AppLocalizations.of(context)!.bug),
-              actions: [
-                TextButton(onPressed: () { 
-                  Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-                }, child: Text(AppLocalizations.of(context)!.ok)),
-              ],
-          );
-        });
+      }else{
+        if(!mounted) return;
+        ErrorHandler(context).unknownErrorDialog();
         setState(() {
           isLoading = false;
         });
-      }else{
-        print(response.data);
-        if(mounted){
-          await showDialog(context: context, builder: (context){
-            return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.unknownError),
-                actions: [
-                  TextButton(onPressed: () { 
-                    Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-                  }, child: Text(AppLocalizations.of(context)!.ok)),
-                ],
-            );
-          });
-          setState(() {
-            isLoading = false;
-          });
-        }
       }
     }catch(e){
-      print(e);
-      if(mounted){
-        if(e is TimeoutException){
-          await showDialog(context: context, builder: (context){
-            return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.connectError),
-                actions: [
-                    TextButton(onPressed: () { Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-}, child: Text(AppLocalizations.of(context)!.ok)),
-                ],
-            );
-          });
-        }else{
-          await showDialog(context: context, builder: (context){
-            return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.bug),
-                actions: [
-                    TextButton(onPressed: () { Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-}, child: Text(AppLocalizations.of(context)!.ok)),
-                ],
-            );
-          });
-        }
-        setState(() {
-          isLoading = false;
-        });
-      }
+      if(!mounted) return;
+      ErrorHandler(context).handle(e, HandleTypes.other);
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 

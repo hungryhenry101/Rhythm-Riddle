@@ -3,12 +3,12 @@ import 'dart:convert';
 
 import '/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
-
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logger/logger.dart';
 import '/models/quiz.dart';
 import '/models/result.dart';
+import '/utils/error_handler.dart';
 
 class SinglePlayerGame extends StatefulWidget {
   const SinglePlayerGame({super.key});
@@ -95,53 +95,13 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
       logger.i(
           "seeked to ${_quizzes[_played].startAt} seconds");
     } catch (e) {
-      if (e is TimeoutException) {
-        logger.log(Level.error, "preparing audio timeout: $e");
-        if (mounted) {
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  content: Text(AppLocalizations.of(context)!.connectError),
-                  actions: [
-                    TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                              '/home',
-                              arguments: _playlistId,
-                              (route) => false);
-                          Navigator.of(context).pushNamed('/PlaylistInfo',
-                              arguments: _playlistId);
-                        },
-                        child: Text(AppLocalizations.of(context)!.back)),
-                  ],
-                );
-              });
-        }
-      } else {
-        logger.log(Level.error, "preparing audio error: $e");
-        if (mounted) {
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  content: Text(AppLocalizations.of(context)!.unknownError),
-                  actions: [
-                    TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                              '/home',
-                              arguments: _playlistId,
-                              (route) => false);
-                          Navigator.of(context).pushNamed('/PlaylistInfo',
-                              arguments: _playlistId);
-                        },
-                        child: Text(AppLocalizations.of(context)!.back)),
-                  ],
-                );
-              });
-        }
-      }
+      if(!mounted) return;
+      ErrorHandler(context).handleGameError(e, () {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+            '/home', arguments: _playlistId, (route) => false);
+        Navigator.of(context)
+            .pushNamed('/PlaylistInfo', arguments: _playlistId);
+      });
     }
   }
 
@@ -186,72 +146,35 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
 
   //获取题目
   Future<void> _getQuiz(int playlistId, int difficulty) async {
-    String? responseBody;
     try {
-      final response = await http
-          .get(Uri.parse(
-              "https://hungryhenry.cn/api/getQuiz.php?id=$playlistId&difficulty=$difficulty"))
-          .timeout(const Duration(seconds: 7));
+      final response = await Dio().get(
+        "https://hungryhenry.cn/api/getQuiz.php?id=$playlistId&difficulty=$difficulty",
+        options: Options(headers: {"Content-Type": "application/json"}),
+      ).timeout(const Duration(seconds: 7));
       if (!mounted) return;
-      responseBody = response.body;
       if (response.statusCode == 200) {
+        logger.i(_quizzes.runtimeType);
         setState(() {
-          _quizzes = list2QuizList(jsonDecode(response.body),context);
+          _quizzes = list2QuizList(response.data, context);
         });
       } else {
-        print(response.body);
+        throw Exception("Get quiz error: " + response.data);
       }
-    } catch (e, stackTrace) {
-      if (e is TimeoutException && mounted) {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.connectError),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/home', arguments: _playlistId, (route) => false);
-                        Navigator.of(context)
-                            .pushNamed('/PlaylistInfo', arguments: _playlistId);
-                      },
-                      child: Text(AppLocalizations.of(context)!.back)),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context)
-                            .popAndPushNamed('/SinglePlayerGame', arguments: {
-                          playlistId,
-                          _playlistTitle,
-                          _description,
-                          difficulty
-                        });
-                      },
-                      child: Text(AppLocalizations.of(context)!.retry))
-                ],
-              );
-            });
-      } else {
-        logger.e("error: $e, stackTrace: $stackTrace");
-        print(responseBody);
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.unknownError),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/home', arguments: _playlistId, (route) => false);
-                        Navigator.of(context)
-                            .pushNamed('/PlaylistInfo', arguments: _playlistId);
-                      },
-                      child: Text(AppLocalizations.of(context)!.back))
-                ],
-              );
-            });
-      }
+    } catch (e) {
+      if(!mounted) return;
+      ErrorHandler(context).handleGameError(e, () {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+            '/home', arguments: _playlistId, (route) => false);
+        Navigator.of(context)
+            .pushNamed('/PlaylistInfo', arguments: _playlistId);
+      }, (){
+        Navigator.of(context).popAndPushNamed('/SinglePlayerGame', arguments: {
+          playlistId,
+          _playlistTitle,
+          _description,
+          difficulty
+        });
+      });
     }
   }
 

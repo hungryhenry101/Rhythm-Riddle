@@ -6,6 +6,7 @@ import 'package:logger/logger.dart';
 import '/models/result.dart';
 import '/models/quiz.dart';
 import '/generated/app_localizations.dart';
+import '/utils/error_handler.dart';
 
 class ResultCard extends StatefulWidget {
   final bool active;
@@ -77,22 +78,8 @@ class _ResultCardState extends State<ResultCard> {
         }
       });
     } catch (e) {
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Text(AppLocalizations.of(context)!.connectError),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(AppLocalizations.of(context)!.back),
-                ),
-              ],
-            );
-          },
-        );
-      }
+      if(!mounted) return;
+      ErrorHandler(context).handle(e, HandleTypes.other);
     }
   }
   @override
@@ -125,6 +112,7 @@ class _ResultCardState extends State<ResultCard> {
     return Card(
       elevation: 5,
       shadowColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+      color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
       ),
@@ -219,44 +207,8 @@ class _ResultCardState extends State<ResultCard> {
                                 await _audioPlayer.play();
                               }
                             } catch (e) {
-                              if (e is TimeoutException && mounted) {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      content: Text(AppLocalizations.of(context)!.connectError),
-                                      actions: [
-                                        TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text(AppLocalizations.of(context)!.back)),
-                                      ],
-                                    );
-                                  },
-                                );
-                              } else {
-                                logger.e(e);
-                                if (mounted) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        content: Text(AppLocalizations.of(context)!.unknownError),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context)
-                                                  .pushNamedAndRemoveUntil('/home', (route) => false);
-                                            },
-                                            child: Text(AppLocalizations.of(context)!.back),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                }
-                              }
+                              if(!mounted) return;
+                              ErrorHandler(context).handle(e, HandleTypes.other);
                             }
                           },
                         )

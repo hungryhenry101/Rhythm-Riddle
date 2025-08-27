@@ -2,8 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:rhythm_riddle/utils/error_handler.dart';
 import '/generated/app_localizations.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:just_audio/just_audio.dart';
@@ -46,12 +47,12 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
 
   Future<void> _postResult() async {
     try{
-      final response = await http.post(
-        Uri.parse('https://hungryhenry.cn/api/result.php'),
-        headers: <String, String>{
+      final response = await Dio().post(
+        'https://hungryhenry.cn/api/result.php',
+        options: Options(headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
+        }),
+        data: jsonEncode({
           'player_id': _uid,
           'token': _token,
           'playlist_id': _playlistId,
@@ -63,45 +64,16 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
         })
       ).timeout(const Duration(seconds:7));
       if(response.statusCode != 200){
-        logger.e(response.statusCode);
-        logger.e(response.body);
+        throw Exception("上传结果失败: " + response.data);
       }else{
-        _likes = int.parse(response.headers['likes'] ?? "0");
-        _liked = response.headers['liked'] == "1";
+        _likes = int.parse(response.data['likes'] ?? "0");
+        _liked = response.data['liked'] == "1";
         logger.i("成功上传结果");
-        logger.i(response.body);
+        logger.i(response.data);
       }
     }catch(e){
-      if(e is TimeoutException && mounted && _score == null){
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(context: context, builder: (context){
-            return AlertDialog(
-              content: Text(AppLocalizations.of(context)!.connectError),
-              actions: [
-                TextButton(onPressed: () {
-                  Navigator.of(context).pop();
-                }, child: Text(AppLocalizations.of(context)!.ok)),
-              ],
-            );
-          });
-        });
-      }else{
-        logger.e(_responseData);
-        logger.e(e);
-        if(mounted && _score == null){
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            showDialog(context: context, builder: (context){
-              return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.unknownError),
-                actions: [
-                  TextButton(onPressed: () {Navigator.of(context).pop();}, 
-                  child: Text(AppLocalizations.of(context)!.back))
-                ],
-              );
-            });
-          });
-        }
-      }
+      if(!mounted) return;
+      ErrorHandler(context).handle(e, HandleTypes.other);
     }
   }
 
@@ -125,12 +97,12 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
           _liked = false;
           _likes == null ? _likes = 0 : _likes = _likes! - 1;
         });
-        final response = await http.post(
-          Uri.parse('https://hungryhenry.cn/api/interact.php'),
-          headers: <String, String>{
+        final response = await Dio().post(
+          'https://hungryhenry.cn/api/interact.php',
+          options: Options(headers: {
             'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode({
+          }),
+          data: jsonEncode({
             'player_id': _uid,
             'token': _token,
             'playlist_id': _playlistId,
@@ -142,23 +114,22 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
             _likes = _likes! + 1;
             _liked = true;
           });
-          logger.e(response.statusCode);
-          logger.e(response.body);
+          throw Exception("取消点赞失败: " + response.data);
         }else{
           logger.i("成功取消点赞");
-          logger.d(response.body);
+          logger.d(response.data);
         }
       }else{
         setState(() {
           _liked = true;
           _likes == null ? _likes = 1 : _likes = _likes! + 1;
         });
-        final response = await http.post(
-          Uri.parse('https://hungryhenry.cn/api/interact.php'),
-          headers: <String, String>{
+        final response = await Dio().post(
+          'https://hungryhenry.cn/api/interact.php',
+          options: Options(headers: {
             'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode({
+          }),
+          data: jsonEncode({
             'player_id': _uid,
             'token': _token,
             'playlist_id': _playlistId,
@@ -170,42 +141,19 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
             _likes = _likes! - 1;
             _liked = false;
           });
-          logger.e(response.statusCode.toString() + response.body);
+          throw Exception("点赞失败: " + response.data);
         }else{
           logger.i("成功点赞");
-          logger.d(response.body);
+          logger.d(response.data);
         }
       }
     }catch(e){
+      if(!mounted) return;
       setState(() {
         _liked ? _liked = false : _liked = true;
         _liked ? _likes = _likes! + 1 : _likes = _likes! - 1;
       });
-      if(e is TimeoutException){
-        showDialog(context: context, builder:(context) {
-          return AlertDialog(
-            content: Text(AppLocalizations.of(context)!.connectError),
-            actions: [
-              TextButton(onPressed: () {
-                Navigator.of(context).pop();
-              }, child: Text(AppLocalizations.of(context)!.ok)),
-            ],
-          );
-        });
-      }else{
-        logger.e(e);
-        if(mounted){
-          showDialog(context: context, builder: (context){
-            return AlertDialog(
-              content: Text(AppLocalizations.of(context)!.unknownError),
-              actions: [
-                TextButton(onPressed: () {Navigator.of(context).pop();}, 
-                child: Text(AppLocalizations.of(context)!.back))
-              ],
-            );
-          });
-        }
-      }
+      ErrorHandler(context).handle(e, HandleTypes.other);
     }
   }
 

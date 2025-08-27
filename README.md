@@ -44,7 +44,7 @@
 - **Flutter**：跨平台移动和桌面开发框架
 - **Dart**：Flutter 使用的编程语言
 - **PHP**：后端 API 开发
-- **MySQL**：数据存储
+- **MySQL**：数据存储 (正在考虑是否迁移至 PostgreSQL)
 
 ## 📊 开发进度
 

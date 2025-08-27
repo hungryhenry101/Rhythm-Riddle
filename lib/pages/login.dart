@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:rhythm_riddle/utils/error_handler.dart';
+
 import '/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -108,26 +110,7 @@ class _LoginPageState extends State<LoginPage>
             "https://hungryhenry.cn/rhythm_riddle/rhythm_riddle_windows_latest.exe";
       } else {
         if (!mounted) return;
-        Navigator.of(context).pop();
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.unknownError),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/login');
-                      },
-                      child: Text(AppLocalizations.of(context)!.retry)),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text(AppLocalizations.of(context)!.ok)),
-                ],
-              );
-            });
+        ErrorHandler(context).unknownErrorDialog();
       }
 
       logger.i("savePath: $savePath");
@@ -206,25 +189,7 @@ class _LoginPageState extends State<LoginPage>
               if (installCode != 0) {
                 logger.e("install apk error");
                 if (mounted) {
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          content: Text(AppLocalizations.of(context)!.unknownError),
-                          actions: [
-                            TextButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(context, '/login');
-                                },
-                                child: Text(AppLocalizations.of(context)!.retry)),
-                            TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(false);
-                                },
-                                child: Text(AppLocalizations.of(context)!.ok)),
-                          ],
-                        );
-                      });
+                  ErrorHandler(context).unknownErrorDialog();
                 }
               }
             }
@@ -236,79 +201,14 @@ class _LoginPageState extends State<LoginPage>
             exit(0);
           }
         } catch (e) {
-          if (e is! DioException) {
-            logger.e("download error: $e");
-            NotificationService.cancelAll();
-            if (mounted) {
-              await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      content: Text(AppLocalizations.of(context)!.unknownError),
-                      actions: [
-                        TextButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/login');
-                            },
-                            child: Text(AppLocalizations.of(context)!.retry)),
-                        TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(false);
-                            },
-                            child: Text(AppLocalizations.of(context)!.ok)),
-                      ],
-                    );
-                  });
-            }
-          } else {
-            logger.e("download error: ${e.message}");
-            NotificationService.cancelAll();
-            if (mounted) {
-              await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      content: Text(AppLocalizations.of(context)!.unknownError),
-                      actions: [
-                        TextButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/login');
-                            },
-                            child: Text(AppLocalizations.of(context)!.retry)),
-                        TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(false);
-                            },
-                            child: Text(AppLocalizations.of(context)!.ok)),
-                      ],
-                    );
-                  });
-            }
-          }
+          ErrorHandler(context).handle(e, HandleTypes.update);
+        }finally{
+          NotificationService.cancelNotification(1);          
         }
-        NotificationService.cancelNotification(1);
       } else {
         logger.e('savePath or url is null');
         if (mounted) {
-          await showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  content: Text(AppLocalizations.of(context)!.unknownError),
-                  actions: [
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/login');
-                        },
-                        child: Text(AppLocalizations.of(context)!.retry)),
-                    TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(false);
-                        },
-                        child: Text(AppLocalizations.of(context)!.ok)),
-                  ],
-                );
-              });
+          ErrorHandler(context).unknownErrorDialog();
         }
       }
     } else {
@@ -348,15 +248,9 @@ class _LoginPageState extends State<LoginPage>
       });
       await _audioPlayer.setAsset('assets/sounds/loginToHome.mp3');
       await _audioPlayer.play();
-      if (mounted) {
-        Navigator.of(context)
-            .pushNamedAndRemoveUntil('/home', (route) => false);
-      }
-    } catch (e, stack) {
-      // 播放失败或其他异常处理
-      debugPrint("播放或跳转出错：$e\n$stack");
-
-      // 安全兜底跳转
+    } catch (e) {
+      ErrorHandler(context).handle(e, HandleTypes.auth);
+    }finally{
       if (mounted) {
         Navigator.of(context)
             .pushNamedAndRemoveUntil('/home', (route) => false);
@@ -419,66 +313,21 @@ class _LoginPageState extends State<LoginPage>
         _playAndNavigate();
       } else {
         logger.e("login error: ${response.statusCode} ${response.data}");
-        // 未知错误
-        if (mounted) {
-          setState(() {
-            _loginText = AppLocalizations.of(context)!.login;
-          });
-          await showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.unknownError),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/login');
-                      },
-                      child: Text(AppLocalizations.of(context)!.retry)),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(false);
-                      },
-                      child: Text(AppLocalizations.of(context)!.ok)),
-                ],
-              );
-            }
-          );
-        }
+        if(!mounted) return;
+        setState(() {
+          _loginText = AppLocalizations.of(context)!.login; 
+        });
+        ErrorHandler(context).unknownErrorDialog();
       }
     } catch (e) {
-      _loginText = AppLocalizations.of(context)!.login;
-      if(mounted) setState(() {});
-      if (e is TimeoutException) {
-        if (!mounted) {
-          logger.e("login timeout");
-          return;
-        } else {
-          await showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.connectError),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/login');
-                      },
-                      child: Text(AppLocalizations.of(context)!.retry)),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(false);
-                      },
-                      child: Text(AppLocalizations.of(context)!.ok)),
-                ],
-              );
-            }
-          );
-        }
-      } else if(e is DioException){
-        logger.e("http status: ${e.response?.statusCode}, data:${e.response?.data}");
-        if (e.response!.statusCode == 401) {
-          logger.i("auth failed, changing validation message");
+      if (!mounted) return;
+      setState(() {
+        _loginText = AppLocalizations.of(context)!.login;
+      });
+      ErrorHandler(context).handle(
+        e, 
+        HandleTypes.auth, 
+        authFailedHandler: (){
           setState(() {
             _errorMessage = AppLocalizations.of(context)!.emailOrName +
               AppLocalizations.of(context)!.or +
@@ -486,30 +335,8 @@ class _LoginPageState extends State<LoginPage>
               AppLocalizations.of(context)!.incorrect;
           });
           _formKey.currentState?.validate();
-        }else{
-          logger.e("login error: $e");
-          await showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.unknownError),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/login');
-                    },
-                    child: Text(AppLocalizations.of(context)!.retry)),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(false);
-                    },
-                    child: Text(AppLocalizations.of(context)!.ok)),
-                ],
-              );
-            }
-          );
         }
-      }
+      );
     }
   }
 
@@ -519,25 +346,7 @@ class _LoginPageState extends State<LoginPage>
           mode: LaunchMode.externalApplication,
         ) &&
         mounted) {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Text(AppLocalizations.of(context)!.unknownError),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/login');
-                    },
-                    child: Text(AppLocalizations.of(context)!.retry)),
-                TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(false);
-                    },
-                    child: Text(AppLocalizations.of(context)!.ok)),
-              ],
-            );
-          });
+      ErrorHandler(context).unknownErrorDialog();
     }
   }
 
@@ -572,134 +381,22 @@ class _LoginPageState extends State<LoginPage>
           setState(() {
             _loginText = AppLocalizations.of(context)!.login;
           });
-          await showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.unknownError),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/login');
-                      },
-                      child: Text(AppLocalizations.of(context)!.retry)),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(false);
-                      },
-                      child: Text(AppLocalizations.of(context)!.ok)),
-                ],
-              );
-            }
-          );
+          ErrorHandler(context).unknownErrorDialog();
         }
       }catch(e){
-        _loginText = AppLocalizations.of(context)!.login;
-        if(mounted) setState(() {});
-        if(e is TimeoutException){
-          if(!mounted) return;
-          await showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                content: Text(AppLocalizations.of(context)!.connectError),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/login');
-                      },
-                      child: Text(AppLocalizations.of(context)!.retry)),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(false);
-                      },
-                      child: Text(AppLocalizations.of(context)!.ok)),
-                ],
-              );
-            }
-          );
-        }else if(e is DioException){
-          if(e.response == null){
-            logger.e("login error with token: $e");
-            return;
-          }
-          if(e.response!.data["message"] == "Token expired"){
+        if (!mounted) return;
+        setState(() {
+          _loginText = AppLocalizations.of(context)!.login;
+        });
+        ErrorHandler(context).handle(
+          e, 
+          HandleTypes.auth,
+          tokenExpiredFunction: () async {
             await storage.delete(key: 'token');
             final String? username = await storage.read(key: 'username');
-            if(!mounted) return;
-            await showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  content: Text(AppLocalizations.of(context)!.loginExpired),
-                  actions: [
-                    TextButton(
-                        onPressed: () async {
-                          _emailController.text = username ?? '';
-                          Navigator.of(context).pop(false);
-                        },
-                        child: Text(AppLocalizations.of(context)!.relogin)),
-                    TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(false);
-                        },
-                        child: Text(AppLocalizations.of(context)!.cancel)),
-                  ],
-                );
-              }
-            );
-          }else if(e.response!.statusCode == 401){
-            await storage.delete(key: 'uid');
-            await storage.delete(key: 'token');
-            if(!mounted) return;
-            await showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  content: Text(AppLocalizations.of(context)!.loginFailed),
-                  actions: [
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/login');
-                        },
-                        child: Text(AppLocalizations.of(context)!.retry)),
-                    TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(false);
-                        },
-                        child: Text(AppLocalizations.of(context)!.ok)),
-                  ],
-                );
-              }
-            );
-          }else{
-            logger.e("login error with token: ${e.response?.data}");
+            _emailController.text = username ?? '';
           }
-        }else{
-          logger.e("login error: $e");
-          if(mounted){
-            await showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  content: Text(AppLocalizations.of(context)!.unknownError),
-                  actions: [
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/login');
-                        },
-                        child: Text(AppLocalizations.of(context)!.retry)),
-                    TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(false);
-                        },
-                        child: Text(AppLocalizations.of(context)!.ok)),
-                  ],
-                );
-              }
-            );
-          }
-        }
+        );
       }
     }
   }
@@ -1043,27 +740,7 @@ class _LoginPageState extends State<LoginPage>
             loginUsingToken();
           }
         }).catchError((e) {
-          if (mounted) {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  content: Text(AppLocalizations.of(context)!.unknownError),
-                  actions: [
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/login');
-                        },
-                        child: Text(AppLocalizations.of(context)!.retry)),
-                    TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(false);
-                        },
-                        child: Text(AppLocalizations.of(context)!.ok)),
-                  ],
-                );
-              });
-          }
+          ErrorHandler(context).unknownErrorDialog();
         });
       });
     }

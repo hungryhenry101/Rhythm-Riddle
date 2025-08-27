@@ -44,7 +44,7 @@ A fun music guessing game that lets music enthusiasts test their knowledge throu
 - **Flutter**: Cross-platform mobile and desktop development framework
 - **Dart**: Programming language used by Flutter
 - **PHP**: Backend API development
-- **MySQL**: Data storage
+- **MySQL**: Data storage (Considering if to migrate to PostgreSQL)
 
 ## 📊 Development Progress
 

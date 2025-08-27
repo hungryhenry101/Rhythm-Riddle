@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:rhythm_riddle/utils/error_handler.dart';
 import '/generated/app_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
@@ -24,17 +25,6 @@ class _HomeState extends State<Home> {
   bool _isLogin = false;
   bool _isLoading = true;
   bool _loadingTimeOut = false;
-
-  void showDialogFunction(String title) async {
-    await showDialog(context: context, builder: (context){
-      return AlertDialog(
-          content: Text(title),
-          actions: [
-              TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text(AppLocalizations.of(context)!.ok)),
-          ],
-      );
-    });
-  }
 
   Future<void> getData() async {
     _uid = await storage.read(key:'uid');
@@ -70,11 +60,12 @@ class _HomeState extends State<Home> {
           setState((){
             _playlists = [{"id": 0, "title": "error"}];
           });
-          logger.i(response.data);
         }
+        logger.i(response.data);
       }
     }catch (e){
-      showDialogFunction(AppLocalizations.of(context)!.connectError);
+      if(!mounted) return;
+      ErrorHandler(context).connectionErrorDialog();
       setState(() {
         _loadingTimeOut = true;
         _isLoading = false;
@@ -92,7 +83,7 @@ class _HomeState extends State<Home> {
           'Authorization': 'Bearer $token}'
         }),
         data: jsonEncode({
-          'uid': _uid,
+          'user_id': _uid,
         })
       );
       if(response.statusCode == 200){
@@ -104,22 +95,7 @@ class _HomeState extends State<Home> {
         throw Exception('logout failed');
       }
     }catch (e){
-      if(e is TimeoutException){
-        showDialogFunction(AppLocalizations.of(context)!.connectError);
-      } else if(e is DioException){
-        if(e.response != null){
-          logger.e('Dio error!');
-          logger.e('STATUS: ${e.response?.statusCode}');
-          logger.e('DATA: ${e.response?.data}');
-          logger.e('HEADERS: ${e.response?.headers}');
-          showDialogFunction(AppLocalizations.of(context)!.unknownError);
-        }else{
-          // Something happened in setting up or sending the request that triggered an Error
-          logger.e('Error sending request!');
-          logger.e(e.message);
-          showDialogFunction(AppLocalizations.of(context)!.connectError);
-        }
-      }
+      ErrorHandler(context).handle(e, HandleTypes.logout);
       await storage.delete(key: 'token');
       await storage.delete(key: 'uid');
       if(!context.mounted) return;
@@ -373,7 +349,7 @@ class _HomeState extends State<Home> {
                 child: _isLogin ? CircleAvatar(
                   radius: 70,
                   backgroundImage: NetworkImage(
-                    "https://hungryhenry.cn/blog/usr/uploads/avatar/$_uid.png",
+                    "https://blog.hungryhenry.cn/usr/uploads/avatar/$_uid.png",
                   )             
                 ) : ElevatedButton(
                   child: const Text('登录'),
