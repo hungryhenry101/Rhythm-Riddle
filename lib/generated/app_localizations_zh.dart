@@ -321,7 +321,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get quizzes => '题';
 
   @override
-  String get answer => '回答';
+  String get yourAnswer => '你的回答';
 
   @override
   String get answerTime => '回答用时';

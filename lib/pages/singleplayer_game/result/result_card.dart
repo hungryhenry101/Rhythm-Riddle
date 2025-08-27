@@ -73,9 +73,7 @@ class _ResultCardState extends State<ResultCard> {
         });
       });
       _sequenceSubscription = _audioPlayer.sequenceStateStream.listen((state) {
-        if (state != null) {
           setState(() {});
-        }
       });
     } catch (e) {
       if(!mounted) return;
@@ -220,11 +218,11 @@ class _ResultCardState extends State<ResultCard> {
                   children: [
                     ..._buildOptions(widget.result),
                     const SizedBox(height: 5),
-                    Text("用时：${widget.result.answerTime}s", textAlign: TextAlign.center)
+                    Text("${AppLocalizations.of(context)!.answerTime}：${widget.result.answerTime}s", textAlign: TextAlign.center)
                   ],
                 )
               else 
-                _buildInputQuestion(widget.result),
+                _buildInputQuestion(widget.result, context),
             ]
           ),
         ),
@@ -233,12 +231,12 @@ class _ResultCardState extends State<ResultCard> {
   }
 }
 
-Widget _buildInputQuestion(Result result) {
+Widget _buildInputQuestion(Result result, BuildContext context) {
   final bool isCorrect = submissionCorrect(result);
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text("你的回答：",
+      Text("${AppLocalizations.of(context)!.yourAnswer}：",
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
       const SizedBox(height: 4),
       Container(
@@ -252,7 +250,7 @@ Widget _buildInputQuestion(Result result) {
       ),
       const SizedBox(height: 12),
       if (!isCorrect) ...[
-        Text("正确答案：",
+        Text(AppLocalizations.of(context)!.correctAnswer + "：",
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 4),
         Container(
@@ -267,7 +265,7 @@ Widget _buildInputQuestion(Result result) {
         ),
       ],
       const SizedBox(height: 12),
-      Text("回答用时：${result.answerTime}s"),
+      Text("${AppLocalizations.of(context)!.answerTime}：${result.answerTime}s"),
     ],
   );
 }

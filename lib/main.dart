@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import '/generated/app_localizations.dart';
@@ -32,7 +30,7 @@ Future<void> main() async{
   final themeProvider = ThemeProvider();
   await themeProvider.init();
 
-  if(clarityConfig.projectId.isEmpty) { //去clarity.dart中配置
+  if(clarityConfig.projectId.isEmpty) { //在clarity.dart中配置
     runApp(const RhythmRiddle());
   }else{
     runApp(ClarityWidget(app: const RhythmRiddle(), clarityConfig: clarityConfig));

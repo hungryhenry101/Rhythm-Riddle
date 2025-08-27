@@ -329,7 +329,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quizzes => 'quizzes';
 
   @override
-  String get answer => 'Answer';
+  String get yourAnswer => 'Your Answer';
 
   @override
   String get answerTime => 'Answer Time';

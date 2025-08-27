@@ -101,7 +101,9 @@ class _LoginPageState extends State<LoginPage>
             "https://hungryhenry.cn/rhythm_riddle/rhythm_riddle_android_latest.apk";
 
         if (await checkPermission(Permission.notification) == false) {
-          Fluttertoast.showToast(msg: AppLocalizations.of(context)!.permissionExplain);
+          if (mounted) {
+            Fluttertoast.showToast(msg: AppLocalizations.of(context)!.permissionExplain);
+          }
         }
         await NotificationService.init();
       } else if (Platform.isWindows) {

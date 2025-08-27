@@ -12,6 +12,7 @@ import '/models/result.dart';
 import './result_card.dart';
 
 class SinglePlayerGameResult extends StatefulWidget {
+
   @override
   State<SinglePlayerGameResult> createState() => _SinglePlayerGameResultState();
 }
@@ -32,7 +33,6 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
   Logger logger = Logger();
 
   //api返回数据
-  Map? _responseData;
   int? _score;
   int? _likes;
 

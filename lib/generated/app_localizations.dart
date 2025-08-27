@@ -698,11 +698,11 @@ abstract class AppLocalizations {
   /// **'quizzes'**
   String get quizzes;
 
-  /// No description provided for @answer.
+  /// No description provided for @yourAnswer.
   ///
   /// In en, this message translates to:
-  /// **'Answer'**
-  String get answer;
+  /// **'Your Answer'**
+  String get yourAnswer;
 
   /// No description provided for @answerTime.
   ///
