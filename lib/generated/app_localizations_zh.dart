@@ -307,6 +307,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get wrong => '错误❌';
 
   @override
+  String get timeout => '时间到⏰';
+
+  @override
   String quizResult(Object playlist) {
     return '$playlist 的答题结果';
   }

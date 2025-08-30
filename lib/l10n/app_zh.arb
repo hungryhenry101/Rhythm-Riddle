@@ -50,7 +50,7 @@
     "chooseAlbum": "选择当前播放的所属专辑", "chooseGenre": "选择当前播放的所属流派",
     "enterMusic": "填写当前播放的歌曲名", "enterArtist": "填写当前播放的歌曲的歌手",
     "enterAlbum": "填写当前播放的所属专辑", "enterGenre": "填写当前播放的所属流派", 
-    "tip": "提示: ", "correctAnswer": "正确答案: ", "correct": "正确✔", "wrong": "错误❌",
+    "tip": "提示: ", "correctAnswer": "正确答案: ", "correct": "正确✔", "wrong": "错误❌", "timeout": "时间到⏰",
 
     "quizResult": "{playlist} 的答题结果", "details": "答题细节",
     "pts": "分", "quizzes": "题", "yourAnswer": "你的回答", "answerTime": "回答用时"

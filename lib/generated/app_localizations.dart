@@ -674,6 +674,12 @@ abstract class AppLocalizations {
   /// **'Wrong❌'**
   String get wrong;
 
+  /// No description provided for @timeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Time\'s up⏰'**
+  String get timeout;
+
   /// No description provided for @quizResult.
   ///
   /// In en, this message translates to:

@@ -51,7 +51,7 @@
     "chooseAlbum": "Choose the album of the playing music", "chooseGenre": "Choose the genre of the playing music",
     "enterMusic": "Enter the name of the playing music", "enterArtist": "Enter the artist of the playing music",
     "enterAlbum": "Enter the album of the playing music", "enterGenre": "Enter the genre of the playing music", 
-    "tip": "Tips: ", "correctAnswer": "Correct Answer: ", "correct": "Correct✔", "wrong": "Wrong❌",
+    "tip": "Tips: ", "correctAnswer": "Correct Answer: ", "correct": "Correct✔", "wrong": "Wrong❌", "timeout": "Time's up⏰",
 
     "quizResult": "Result of {playlist}", "details": "Answer Details",
     "pts": "points", "quizzes": "quizzes","yourAnswer": "Your Answer","answerTime": "Answer Time"

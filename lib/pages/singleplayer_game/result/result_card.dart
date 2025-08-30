@@ -218,7 +218,15 @@ class _ResultCardState extends State<ResultCard> {
                   children: [
                     ..._buildOptions(widget.result),
                     const SizedBox(height: 5),
-                    Text("${AppLocalizations.of(context)!.answerTime}：${widget.result.answerTime}s", textAlign: TextAlign.center)
+                    
+                    //答题时间
+                    Text(
+                      "${AppLocalizations.of(context)!.answerTime}：${
+                        widget.result.submission=='' 
+                        ? AppLocalizations.of(context)!.timeout //超时
+                        : widget.result.answerTime}s",
+                      textAlign: TextAlign.center
+                    )
                   ],
                 )
               else 

@@ -8,6 +8,7 @@ import 'package:logger/logger.dart';
 import '/models/quiz.dart';
 import '/models/result.dart';
 import '/utils/error_handler.dart';
+import '/widgets/correctness_overlay.dart';
 
 class SinglePlayerGame extends StatefulWidget {
   const SinglePlayerGame({super.key});
@@ -50,6 +51,9 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
   final _audioPlayer = AudioPlayer();
   int _played = 0;
   int _audioPlayingTime = 0;
+
+  // CorrectnessOverlay
+  bool _showOverlay = false;
 
   //播放变化监测变量
   ProcessingState _processingState = ProcessingState.idle;
@@ -184,8 +188,9 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
       if (_currentAnswerTime == 0 || _submittedOption != null) {
         timer.cancel();
         if (_currentAnswerTime == 0 && mounted) {
+          // 时间到
           setState(() {
-            _submittedOption = "bruhtimeout";
+            _submittedOption = "";
             _resultList.add(
               Result(
                 quizType: _quizzes[_currentQuiz].quizType,
@@ -513,7 +518,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
           if (_submittedOption == null) ...[
             //提交按钮
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 logger.i("submitted with ${_selectedOption ?? _controller.text}");
                 setState(() {
                   _submittedOption = _selectedOption ?? _controller.text;
@@ -532,14 +537,31 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                 });
 
                 //提示音
-                if (_submittedOption == "bruhtimeout") {
-                  _wrongTune();
+                if (_submittedOption == "") {
+                  setState(() {
+                    _showOverlay = true;
+                  });
+                  if(_audioPlayer.playing){
+                    await _audioPlayer.pause();
+                  }
+                  await _wrongTune();
+                  _audioPlayer.play();
                 }
                 if (answerList.any((item) =>
                     item.toLowerCase() == _submittedOption!.toLowerCase())) {
+                  setState(() {
+                    _showOverlay = true;
+                  });
                   _correctTune();
-                } else {
-                  _wrongTune();
+                } else { 
+                  setState(() {
+                    _showOverlay = true;
+                  });
+                  if(_audioPlayer.playing){
+                    await _audioPlayer.pause();
+                  }
+                  await _wrongTune();
+                  _audioPlayer.play();
                 }
                 Future.delayed(
                     const Duration(seconds: 1), () => _audioPlayer.play());
@@ -547,24 +569,23 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
               child: Text(AppLocalizations.of(context)!.submit),
             ),
           ] else ...[
-            const SizedBox(height: 10),
-            _submittedOption == "bruhtimeout"
-                ? const Text("时间到")
+            if (_showOverlay)...[
+              const SizedBox(height: 10),
+              _submittedOption == ""
+                ? CorrectnessOverlay(
+                  type: OverlayType.timeout,
+                  onFinish: ()=> setState(()=>_showOverlay = false),
+                )
                 : answerList.any((item) => item.toLowerCase() == _submittedOption!.toLowerCase())
-                  ? Text(AppLocalizations.of(context)!.correct,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green
-                    )
+                  ? CorrectnessOverlay(
+                    type: OverlayType.correct,
+                    onFinish: ()=> setState(()=>_showOverlay = false),
                   )
-                  : Text(AppLocalizations.of(context)!.wrong,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red
-                    )
+                  : CorrectnessOverlay(
+                    type: OverlayType.wrong,
+                    onFinish: ()=> setState(()=>_showOverlay = false),
                   ),
+            ],
             const SizedBox(height: 10),
             if (_currentQuiz + 2 == _quizzes.length) ...[
               //结束
@@ -606,7 +627,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                 child: Text(AppLocalizations.of(context)!.next),
               ),
             ],
-            if (_submittedOption != null) ...[
+            if (_submittedOption != null && _showOverlay == false) ...[
               Text(musicInfo),
               //播放控制
               Row(

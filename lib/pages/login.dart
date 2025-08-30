@@ -57,7 +57,12 @@ class _LoginPageState extends State<LoginPage>
   Future<bool> _checkUpdate() async {
     try {
       Response res = await Dio().get(
-        'https://hungryhenry.cn/rhythm_riddle/versions.json'
+        'https://hungryhenry.cn/rhythm_riddle/versions.json',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+          },
+        ),
       );
       if (res.statusCode == 200) {
         Map data = res.data;
@@ -84,7 +89,11 @@ class _LoginPageState extends State<LoginPage>
         return false;
       }
     } catch (e) {
-      logger.e("version check error: $e");
+      if(e is DioException && e.response != null){
+        logger.e("version check error: ${e.message}, ${e.response}");
+      }else{
+        logger.e("version check error: $e");
+      }
       return false;
     }
   }

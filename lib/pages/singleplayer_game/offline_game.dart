@@ -192,13 +192,13 @@ class _OfflineGameState extends State<OfflineGame> {
         timer.cancel();
         if (_currentAnswerTime == 0 && mounted) {
           setState(() {
-            _submittedOption = "bruhtimeout";
+            _submittedOption = "";
             _resultList.add({
               "quizType": _quizzes[_currentQuiz.toString()]["quizType"],
               "answer": _quizzes[_currentQuiz.toString()]["answer"],
               "musicId": _quizzes[_currentQuiz.toString()]["music_id"] ??
                   _quizzes[_currentQuiz.toString()]["id"],
-              "submitText": "bruhtimeout",
+              "submitText": "",
               "options": _quizzes[_currentQuiz.toString()]["options"],
               "answerTime": _answerTime
             });
@@ -491,7 +491,7 @@ class _OfflineGameState extends State<OfflineGame> {
                 });
 
                 //提示音
-                if (_submittedOption == "bruhtimeout") {
+                if (_submittedOption == "") {
                   _wrongTune();
                 }
                 if (answerList != null) {
@@ -515,7 +515,7 @@ class _OfflineGameState extends State<OfflineGame> {
             ),
           ] else ...[
             const SizedBox(height: 10),
-            _submittedOption == "bruhtimeout"
+            _submittedOption == ""
                 ? const Text("时间到")
                 : _submittedOption!.toLowerCase() == answer.toLowerCase()
                     ? Text(AppLocalizations.of(context)!.correct,

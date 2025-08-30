@@ -315,6 +315,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wrong => 'Wrong❌';
 
   @override
+  String get timeout => 'Time\'s up⏰';
+
+  @override
   String quizResult(Object playlist) {
     return 'Result of $playlist';
   }
