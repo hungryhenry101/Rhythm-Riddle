@@ -30,7 +30,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
 
   // zh_CN? create window
   if (GetUserDefaultUILanguage() == 0x0804) { 
-    if (!window.Create(L"这歌我熟", origin, size)) {
+    if (!window.Create(L"知音？", origin, size)) {
       return EXIT_FAILURE;
     } 
   }else{

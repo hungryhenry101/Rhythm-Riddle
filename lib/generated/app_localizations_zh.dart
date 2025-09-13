@@ -9,7 +9,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get name => '这歌我熟';
+  String get appTitle => '知音?';
 
   @override
   String get login => '登录';
@@ -250,13 +250,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get custom => '自定义';
 
   @override
-  String get easyInfo => '简单模式：5次失误机会，曲名或歌手4选1';
+  String get easyInfo => '简单模式：7个题目，大多数为选择题，音乐播放时长和答题时长充裕';
 
   @override
-  String get normalInfo => '普通模式：3次失误机会，曲名或歌手或专辑 4选1或有提示的填空';
+  String get normalInfo => '普通模式：7个题目，有一些填空题，音乐播放时长和答题时长适中';
 
   @override
-  String get hardInfo => '困难模式：2次失误机会，曲名或歌手或专辑填空';
+  String get hardInfo => '困难模式：7个题目，大多数为填空题，音乐播放时长和答题时长较短';
 
   @override
   String get start => '开始游戏';

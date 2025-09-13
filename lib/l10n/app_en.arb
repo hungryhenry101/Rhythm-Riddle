@@ -1,6 +1,6 @@
 {
     "@@locale": "en",
-    "name": "Rhythm Riddle",
+    "appTitle": "Rhythm Riddle",
     "login": "Login", "loggingIn": "Loggin In...", "rememberMe": "Remember me in 7 days",
     "loginSuccess":"Login Success","or": "or", "register": "No account? Click here to sign up!", 
     "guest": "offline mode", "logout":"Logout",
@@ -41,9 +41,9 @@
     "noDes": "No Description",
     "chooseDifficulty": "Choose Difficulty", "difficulty": "Difficulty",
     "easy": "Easy", "normal": "Normal", "hard": "Hard", "custom": "Custom",
-    "easyInfo": "Easy mode: 5 times mistake chances, 4 options to choose for Artist or Music title",
-    "normalInfo": "Normal mode: 3 times mistake chances, 4 options to choose or fill in the blanks with hints for Artist or Music title or Album",
-    "hardInfo": "Hard mode: 2 times mistake chances, fill in the blanks for Artist or Music title or Album",
+    "easyInfo": "Easy mode: 7 quizzes, most are the choosing questions, lots of time for music playing and answering",
+    "normalInfo": "Normal mode: 7 quizzes, some are filling questions, moderate time for music playing and answering",
+    "hardInfo": "Hard mode: 7 quizzes, most are filling questions, little time for music playing and answering",
     "start": "Start",
 
     "submit": "Submit", "next": "Next", "end": "End👉",

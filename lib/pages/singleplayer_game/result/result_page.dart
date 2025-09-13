@@ -310,12 +310,31 @@ class _SinglePlayerGameResultState extends State<SinglePlayerGameResult> {
                     final item = _resultList[index];
                     return Center(
                       child: SizedBox(
-                        width: 340,
-                        height: 360,
-                        child: ResultCard(
-                          result: item,
-                          index: index,
-                          active: index == _currentPage,
+                        height: 380,
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: ResultCard(
+                                result: item,
+                                index: index,
+                                active: index == _currentPage,
+                              ),
+                            ),
+                            // 右边
+                            if (index < _resultList.length - 1)
+                              Positioned(
+                                right: -10,
+                                bottom: 20,
+                                child: const RingConnector(),
+                              ),
+                            // 左边
+                            if (index > 0)
+                              Positioned(
+                                left: -10,
+                                bottom: 20,
+                                child: const RingConnector(),
+                              ),
+                          ],
                         ),
                       ),
                     );

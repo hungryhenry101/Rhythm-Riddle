@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get name => 'Rhythm Riddle';
+  String get appTitle => 'Rhythm Riddle';
 
   @override
   String get login => 'Login';
@@ -256,15 +256,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get easyInfo =>
-      'Easy mode: 5 times mistake chances, 4 options to choose for Artist or Music title';
+      'Easy mode: 7 quizzes, most are the choosing questions, lots of time for music playing and answering';
 
   @override
   String get normalInfo =>
-      'Normal mode: 3 times mistake chances, 4 options to choose or fill in the blanks with hints for Artist or Music title or Album';
+      'Normal mode: 7 quizzes, some are filling questions, moderate time for music playing and answering';
 
   @override
   String get hardInfo =>
-      'Hard mode: 2 times mistake chances, fill in the blanks for Artist or Music title or Album';
+      'Hard mode: 7 quizzes, most are filling questions, little time for music playing and answering';
 
   @override
   String get start => 'Start';

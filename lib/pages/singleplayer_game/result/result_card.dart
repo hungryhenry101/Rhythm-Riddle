@@ -110,7 +110,7 @@ class _ResultCardState extends State<ResultCard> {
     return Card(
       elevation: 5,
       shadowColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-      color: Theme.of(context).colorScheme.surface,
+      color: Theme.of(context).colorScheme.surfaceContainer,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
       ),
@@ -302,4 +302,38 @@ List<Widget> _buildOptions(Result result) {
       ),
     );
   }).toList();
+}
+
+class RingConnector extends StatelessWidget {
+  const RingConnector({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 340,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildRing(),
+          _buildRing(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRing() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 45),
+      width: 28,
+      height: 18,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.grey.shade700,
+          width: 3,
+        ),
+        borderRadius: BorderRadius.circular(14),
+        color: Colors.transparent,
+      ),
+    );
+  }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '/generated/app_localizations.dart';
-import 'package:http/http.dart' as http;
 
 class MultiPlayer extends StatefulWidget {
   const MultiPlayer({Key? key}) : super(key: key);

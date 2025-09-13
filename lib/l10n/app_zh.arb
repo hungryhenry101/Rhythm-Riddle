@@ -1,6 +1,6 @@
 {
     "@@locale": "zh",
-    "name": "这歌我熟",
+    "appTitle": "知音?",
     "login": "登录", "loggingIn": "登录中...", "rememberMe": "7天内自动登录",
     "loginSuccess": "登录成功","or": "或", "register": "没有账号? 点此注册!",
     "guest": "免登录进入", "logout": "退出登录",
@@ -40,9 +40,9 @@
     "noDes": "暂无简介",
     "chooseDifficulty": "选择难度", "difficulty": "难度",
     "easy": "简单", "normal": "普通", "hard": "困难", "custom": "自定义",
-    "easyInfo": "简单模式：5次失误机会，曲名或歌手4选1",
-    "normalInfo": "普通模式：3次失误机会，曲名或歌手或专辑 4选1或有提示的填空",
-    "hardInfo": "困难模式：2次失误机会，曲名或歌手或专辑填空",
+    "easyInfo": "简单模式：7个题目，大多数为选择题，音乐播放时长和答题时长充裕",
+    "normalInfo": "普通模式：7个题目，有一些填空题，音乐播放时长和答题时长适中",
+    "hardInfo": "困难模式：7个题目，大多数为填空题，音乐播放时长和答题时长较短",
     "start": "开始游戏",
 
     "submit": "提交", "next": "下一题", "end": "结束👉",

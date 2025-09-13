@@ -280,7 +280,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                 decoration: BoxDecoration(
                   color: selectedDifficulty == 1
                       ? Theme.of(context).primaryColor
-                      : Colors.grey[300],
+                      : Theme.of(context).colorScheme.surfaceContainer,
                   border: Border.all(color: Colors.grey),
                   borderRadius:
                       const BorderRadius.horizontal(left: Radius.circular(10)),
@@ -290,7 +290,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                     AppLocalizations.of(context)!.easy,
                     style: TextStyle(
                       color:
-                          selectedDifficulty == 1 ? Colors.white : Colors.black,
+                          selectedDifficulty == 1 ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -308,7 +308,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                 decoration: BoxDecoration(
                   color: selectedDifficulty == 2
                       ? Theme.of(context).primaryColor
-                      : Colors.grey[300],
+                      : Theme.of(context).colorScheme.surfaceContainer,
                   border: Border.all(color: Colors.grey),
                 ),
                 child: Center(
@@ -316,7 +316,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                     AppLocalizations.of(context)!.normal,
                     style: TextStyle(
                       color:
-                          selectedDifficulty == 2 ? Colors.white : Colors.black,
+                          selectedDifficulty == 2 ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -334,7 +334,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                 decoration: BoxDecoration(
                   color: selectedDifficulty == 3
                       ? Theme.of(context).primaryColor
-                      : Colors.grey[300],
+                      : Theme.of(context).colorScheme.surfaceContainer,
                   border: Border.all(color: Colors.grey),
                 ),
                 child: Center(
@@ -342,7 +342,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
                     AppLocalizations.of(context)!.hard,
                     style: TextStyle(
                       color:
-                          selectedDifficulty == 3 ? Colors.white : Colors.black,
+                          selectedDifficulty == 3 ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),

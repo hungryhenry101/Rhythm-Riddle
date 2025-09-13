@@ -10,7 +10,7 @@ A fun music guessing game that lets music enthusiasts test their knowledge throu
 
 ## Overview
 
-**Rhythm Riddle** is an engaging music guessing game where players identify songs, artists, albums, and genres by listening to short audio clips. Built with Flutter, it provides a seamless cross-platform experience on Android, IOS, Windows, and Linux.
+**Rhythm Riddle 知音？** is an engaging music guessing game where players identify songs, artists, albums, and genres by listening to short audio clips. Built with Flutter, it provides a seamless cross-platform experience on Android, IOS, Windows, and Linux.
 
 > **Note:** The project is under development and needs your [help and contributions](#contributing)!
 
@@ -38,6 +38,9 @@ A fun music guessing game that lets music enthusiasts test their knowledge throu
   - Hints availability
 - **Scoring System**: Earn points for correct guesses
 - **Leaderboard**: Compete with players worldwide
+
+### TODO 📝
+- AnimatedIcons for better animations
 
 ## 🛠️ Tech Stack
 

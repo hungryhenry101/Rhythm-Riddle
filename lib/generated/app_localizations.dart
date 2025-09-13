@@ -98,11 +98,11 @@ abstract class AppLocalizations {
     Locale('zh')
   ];
 
-  /// No description provided for @name.
+  /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
   /// **'Rhythm Riddle'**
-  String get name;
+  String get appTitle;
 
   /// No description provided for @login.
   ///
@@ -563,19 +563,19 @@ abstract class AppLocalizations {
   /// No description provided for @easyInfo.
   ///
   /// In en, this message translates to:
-  /// **'Easy mode: 5 times mistake chances, 4 options to choose for Artist or Music title'**
+  /// **'Easy mode: 7 quizzes, most are the choosing questions, lots of time for music playing and answering'**
   String get easyInfo;
 
   /// No description provided for @normalInfo.
   ///
   /// In en, this message translates to:
-  /// **'Normal mode: 3 times mistake chances, 4 options to choose or fill in the blanks with hints for Artist or Music title or Album'**
+  /// **'Normal mode: 7 quizzes, some are filling questions, moderate time for music playing and answering'**
   String get normalInfo;
 
   /// No description provided for @hardInfo.
   ///
   /// In en, this message translates to:
-  /// **'Hard mode: 2 times mistake chances, fill in the blanks for Artist or Music title or Album'**
+  /// **'Hard mode: 7 quizzes, most are filling questions, little time for music playing and answering'**
   String get hardInfo;
 
   /// No description provided for @start.

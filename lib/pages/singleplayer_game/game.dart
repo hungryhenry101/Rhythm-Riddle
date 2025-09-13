@@ -34,6 +34,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
   bool _canShowQuiz = false;
 
   List<Quiz> _quizzes = []; //存储api获取的题目
+  List<String> _answerList = [];
 
   String? _selectedOption; //选项
   String? _submittedOption; //提交的选项
@@ -184,13 +185,14 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
   //答题倒计时
   void _answerTimeCountdown() {
     if (!mounted) return;
-    Timer.periodic(const Duration(seconds: 1), (timer) {
+    Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (_currentAnswerTime == 0 || _submittedOption != null) {
         timer.cancel();
         if (_currentAnswerTime == 0 && mounted) {
           // 时间到
           setState(() {
             _submittedOption = "";
+            _showOverlay = true;
             _resultList.add(
               Result(
                 quizType: _quizzes[_currentQuiz].quizType,
@@ -205,9 +207,12 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
               )
             );
           });
-          if (!_audioPlayer.playing) {
-            _audioPlayer.play();
+          
+          if(_audioPlayer.playing){
+            await _audioPlayer.pause();
           }
+          await _wrongTune();
+          _audioPlayer.play();
         }
       } else {
         if (mounted && _prepareFinished) {
@@ -253,8 +258,8 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
   Widget _showQuiz(Quiz quiz, int difficulty) {
     QuizType quizType = quiz.quizType; //题目类型
 
-    List<String> answerList = quiz.getAnswer();
-    answerList.removeWhere((item) => item == "欧美" || item == "华语");
+    _answerList = quiz.getAnswer();
+    _answerList.removeWhere((item) => item == "欧美" || item == "华语");
 
     bool isChoosing = choosingTypes.contains(quizType); //是否是选择题
     bool haveSubtitle = false;
@@ -270,7 +275,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
       if (quiz.blanks == null) {
         tip = quiz.tip;
       } else {
-        tip = replaceWithBlanks(answerList[0], quiz.blanks!); // 有blank 的一定只有一个 实数根（bushi
+        tip = replaceWithBlanks(_answerList[0], quiz.blanks!); // 有blank 的一定只有一个 实数根（bushi
       }
     }
 
@@ -301,7 +306,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                   textAlign: TextAlign.center,
                 ),
               ),
-
+          
               if (_submittedOption == null) ...[
                 //倒计时
                 Container(
@@ -326,7 +331,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
                                 )
-                              : const TextStyle(fontSize: 24),
+                              : const TextStyle(fontSize: 24, color: Colors.black),
                         ),
                 ),
               ]
@@ -347,7 +352,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                             borderRadius: BorderRadius.circular(10),
                             side: BorderSide(
                               color: _submittedOption == null ? Colors.transparent
-                                : answerList.contains(quiz.options![index]['title'])
+                                : _answerList.contains(quiz.options![index]['title'])
                                   ? Colors.green : Colors.red,
                               width: 1,
                             ),
@@ -443,7 +448,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                                 _submittedOption = value;
                                 _resultList.add(Result(
                                   quizType: quiz.quizType,
-                                  correctAnswers: answerList,
+                                  correctAnswers: _answerList,
                                   musicId: quiz.musicId,
                                   music: quiz.music,
                                   albumId: quiz.albumId,
@@ -470,7 +475,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                               const TextStyle(letterSpacing: 2, fontSize: 18))
                     ] else ...[
                       Text(AppLocalizations.of(context)!.correctAnswer),
-                      Text(answerList.join(", "),
+                      Text(_answerList.join(", "),
                           style:
                               const TextStyle(letterSpacing: 2, fontSize: 18)),
                       const SizedBox(height: 10),
@@ -524,7 +529,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                   _submittedOption = _selectedOption ?? _controller.text;
                   _resultList.add(Result(
                     quizType: quiz.quizType,
-                    correctAnswers: answerList,
+                    correctAnswers: _answerList,
                     musicId: quiz.musicId,
                     music: quiz.music,
                     artistId: quiz.artistId,
@@ -535,9 +540,9 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                   ));
                   _currentAnswerTime = _answerTime;
                 });
-
+          
                 //提示音
-                if (_submittedOption == "") {
+                if (_submittedOption == "" && _resultList.length != _currentQuiz + 1) {
                   setState(() {
                     _showOverlay = true;
                   });
@@ -547,7 +552,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                   await _wrongTune();
                   _audioPlayer.play();
                 }
-                if (answerList.any((item) =>
+                if (_answerList.any((item) =>
                     item.toLowerCase() == _submittedOption!.toLowerCase())) {
                   setState(() {
                     _showOverlay = true;
@@ -569,23 +574,6 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
               child: Text(AppLocalizations.of(context)!.submit),
             ),
           ] else ...[
-            if (_showOverlay)...[
-              const SizedBox(height: 10),
-              _submittedOption == ""
-                ? CorrectnessOverlay(
-                  type: OverlayType.timeout,
-                  onFinish: ()=> setState(()=>_showOverlay = false),
-                )
-                : answerList.any((item) => item.toLowerCase() == _submittedOption!.toLowerCase())
-                  ? CorrectnessOverlay(
-                    type: OverlayType.correct,
-                    onFinish: ()=> setState(()=>_showOverlay = false),
-                  )
-                  : CorrectnessOverlay(
-                    type: OverlayType.wrong,
-                    onFinish: ()=> setState(()=>_showOverlay = false),
-                  ),
-            ],
             const SizedBox(height: 10),
             if (_currentQuiz + 2 == _quizzes.length) ...[
               //结束
@@ -627,7 +615,7 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
                 child: Text(AppLocalizations.of(context)!.next),
               ),
             ],
-            if (_submittedOption != null && _showOverlay == false) ...[
+            if (_submittedOption != null) ...[
               Text(musicInfo),
               //播放控制
               Row(
@@ -781,71 +769,93 @@ class _SinglePlayerGameState extends State<SinglePlayerGame> {
 
   Widget _smallScreen() {
     return SingleChildScrollView(
-      child: Column(
+      child: Stack(
         children: [
-          Text(_playlistTitle,
-              style:
-                  const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
-          Text(
-              "${AppLocalizations.of(context)!.difficulty}: ${_difficulty == 1 ? AppLocalizations.of(context)!.easy : _difficulty == 2 ? AppLocalizations.of(context)!.normal : _difficulty == 3 ? AppLocalizations.of(context)!.hard : AppLocalizations.of(context)!.custom}",
-              style: const TextStyle(fontSize: 16),
-              softWrap: true),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Column(
             children: [
-              Column(
+              Text(_playlistTitle,
+                  style:
+                      const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              Text(
+                  "${AppLocalizations.of(context)!.difficulty}: ${_difficulty == 1 ? AppLocalizations.of(context)!.easy : _difficulty == 2 ? AppLocalizations.of(context)!.normal : _difficulty == 3 ? AppLocalizations.of(context)!.hard : AppLocalizations.of(context)!.custom}",
+                  style: const TextStyle(fontSize: 16),
+                  softWrap: true),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _quizzes.isEmpty
-                      ? const CircularProgressIndicator()
-                      : //加载
-                      AnimatedSwitcher(
-                          //动画
-                          duration: const Duration(milliseconds: 800),
-                          transitionBuilder:
-                              (Widget child, Animation<double> animation) {
-                            return ScaleTransition(
-                              scale: animation,
-                              child: FadeTransition(
-                                  opacity: animation, child: child),
-                            );
-                          },
-                          child: _countdown > 0
-                              ? Container(
-                                  key:
-                                      ValueKey<int>(_countdown), // 使用倒计时数字作为key
-                                  padding:
-                                      const EdgeInsets.all(24), // 调整内边距来增加背景的大小
-                                  decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Text(
-                                    '$_countdown',
-                                    style: const TextStyle(
-                                      fontSize: 48,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                )
-                              : const SizedBox.shrink(),
-                        ),
-                  const SizedBox(height: 20),
-                  if (_countdown > 0) ...[
-                    Image.network(
-                        "https://hungryhenry.cn/musiclab/playlist/$_playlistId.jpg",
-                        width: 150,
-                        height: 150)
+                  Column(
+                    children: [
+                      _quizzes.isEmpty
+                          ? const CircularProgressIndicator()
+                          : //加载
+                          AnimatedSwitcher(
+                              //动画
+                              duration: const Duration(milliseconds: 800),
+                              transitionBuilder:
+                                  (Widget child, Animation<double> animation) {
+                                return ScaleTransition(
+                                  scale: animation,
+                                  child: FadeTransition(
+                                      opacity: animation, child: child),
+                                );
+                              },
+                              child: _countdown > 0
+                                  ? Container(
+                                      key:
+                                          ValueKey<int>(_countdown), // 使用倒计时数字作为key
+                                      padding:
+                                          const EdgeInsets.all(24), // 调整内边距来增加背景的大小
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Text(
+                                        '$_countdown',
+                                        style: const TextStyle(
+                                          fontSize: 48,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
+                      const SizedBox(height: 20),
+                      if (_countdown > 0) ...[
+                        Image.network(
+                            "https://hungryhenry.cn/musiclab/playlist/$_playlistId.jpg",
+                            width: 150,
+                            height: 150)
+                      ],
+                    ],
+                  ),
+                  if (_currentQuiz != -1 && _canShowQuiz) ...[
+                    _showQuiz(_quizzes[_currentQuiz], _difficulty)
                   ],
                 ],
-              ),
-              if (_currentQuiz != -1 && _canShowQuiz) ...[
-                _showQuiz(_quizzes[_currentQuiz], _difficulty)
-              ],
+              )
             ],
-          )
+          ),
+          if (_showOverlay)...[
+            Positioned.fill(
+              child: _submittedOption == ""
+                ? CorrectnessOverlay(
+                  type: OverlayType.timeout,
+                  onFinish: ()=> setState(()=>_showOverlay = false),
+                )
+                : _answerList.any((item) => item.toLowerCase() == _submittedOption!.toLowerCase())
+                  ? CorrectnessOverlay(
+                    type: OverlayType.correct,
+                    onFinish: ()=> setState(()=>_showOverlay = false),
+                  )
+                  : CorrectnessOverlay(
+                    type: OverlayType.wrong,
+                    onFinish: ()=> setState(()=>_showOverlay = false),
+                  ),
+            ),
+          ],
         ],
       ),
     );

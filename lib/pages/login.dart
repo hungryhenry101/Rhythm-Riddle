@@ -67,6 +67,7 @@ class _LoginPageState extends State<LoginPage>
       if (res.statusCode == 200) {
         Map data = res.data;
         _latestVersion = data['latest']['version'];
+        logger.i("latest v.: $_latestVersion");
 
         PackageInfo packageInfo = await PackageInfo.fromPlatform();
         _currentVersion = packageInfo.version;
@@ -767,6 +768,7 @@ class _LoginPageState extends State<LoginPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       body: Stack(
         children: [
           //main page

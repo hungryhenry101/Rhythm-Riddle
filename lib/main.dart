@@ -63,6 +63,7 @@ class _RhythmRiddleState extends State<RhythmRiddle> {
       value: _themeProvider,
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) => MaterialApp(
+          onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
           localizationsDelegates: [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,

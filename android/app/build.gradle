@@ -25,7 +25,7 @@ if (flutterVersionName == null) {
 
 android {
     ndkVersion = "27.0.12077973"
-    compileSdkVersion 34
+    flutter.compileSdkVersion
     namespace = "com.hungryhenry.rhythm_riddle"
     compileSdk = flutter.compileSdkVersion
     compileOptions {

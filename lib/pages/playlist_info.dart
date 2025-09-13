@@ -189,7 +189,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(createdBy),
+                  Text(createdBy), 
                   const SizedBox(width: 25),
                   const Text("|"),
                   const SizedBox(width: 25),
@@ -200,7 +200,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
           ),
         ),
         _buildInfoRow(),
-        Text(AppLocalizations.of(context)!.contains(musicTitle, artist, musicCount)),
+        Text(AppLocalizations.of(context)!.contains(artist, musicCount, musicTitle)),
         Row(
           mainAxisAlignment:MainAxisAlignment.center,
           children: [ElevatedButton(onPressed: (){
@@ -296,7 +296,7 @@ class _PlaylistInfoState extends State<PlaylistInfo> {
                 SizedBox(height: MediaQuery.of(context).size.height * 0.1),
                 _buildInfoRow(),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                Text(AppLocalizations.of(context)!.contains(musicTitle, artist, musicCount)),
+                Text(AppLocalizations.of(context)!.contains(artist, musicCount, musicTitle)),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.06),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
